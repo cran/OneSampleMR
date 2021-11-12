@@ -1,0 +1,49 @@
+## ---- include=FALSE-----------------------------------------------------------
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+## ----setup--------------------------------------------------------------------
+library(OneSampleMR)
+library(ivtools)
+
+## -----------------------------------------------------------------------------
+set.seed(12345)
+n <- 5000
+psi0 <- 0.5
+psi1 <- 0.2
+Z <- rbinom(n, 1, 0.5)
+X <- rbinom(n, 1, 0.7*Z + 0.2*(1 - Z)) 
+m0 <- plogis(1 + 0.8*X - 0.39*Z)
+Y <- rbinom(n, 1, plogis(psi0*X + log(m0/(1 - m0)))) 
+dat <- data.frame(Z, X, Y)
+
+## -----------------------------------------------------------------------------
+fitZ.L <- glm(Z ~ 1, family = "binomial", data = dat)
+fitY.LZX <- glm(Y ~ X, family = "binomial", data = dat)
+fit01 <- ivglm(estmethod = "g", X = "X", Y = "Y",
+                  fitZ.L = fitZ.L, fitY.LZX = fitY.LZX, 
+                  data = dat, link = "log")
+summary(fit01)
+confint(fit01)
+
+## -----------------------------------------------------------------------------
+exp(cbind(fit01$est, confint(fit01)))
+
+## -----------------------------------------------------------------------------
+fit02 <- msmm(Y ~ X | Z, data = dat)
+summary(fit02)
+
+## -----------------------------------------------------------------------------
+fit03 <- msmm(Y ~ X | Z, data = dat, estmethod = "gmmalt")
+summary(fit03)
+
+## -----------------------------------------------------------------------------
+fit04 <- msmm(Y ~ X | Z, data = dat, estmethod = "tsls")
+summary(fit04)
+
+## -----------------------------------------------------------------------------
+fit05 <- msmm(Y ~ X | Z, data = dat, estmethod = "tslsalt")
+summary(fit05)
+
