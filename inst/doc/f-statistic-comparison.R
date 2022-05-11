@@ -1,12 +1,18 @@
 ## ---- include=FALSE-----------------------------------------------------------
+# Only run code chunks if Suggests packages available
+suggestsavailable <-
+  sapply(c("lfe", "haven"), requireNamespace, quietly = TRUE)
+evalcond <- all(suggestsavailable)
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  eval = evalcond
 )
 
 ## ----setup--------------------------------------------------------------------
 library(haven)
 library(ivreg)
+library(lfe)
 library(OneSampleMR)
 
 ## -----------------------------------------------------------------------------
@@ -17,10 +23,8 @@ summary(mod)
 fsw(mod)
 
 ## -----------------------------------------------------------------------------
-library(lfe)
-
 modst2 <- felm(lwage ~ 1 | 0 | (educ | exper ~ age + kidslt6 + kidsge6),
-               data = dat)
+                 data = dat)
 summary(modst2)
 t(sapply(modst2$stage1$lhs, 
          function(lh) waldtest(modst2$stage1, 

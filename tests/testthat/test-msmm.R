@@ -3,6 +3,7 @@
 # Test equivalence to Stata output ----
 test_that("Stata output check", {
   skip_on_cran()
+  skip_if_not_installed("haven")
   library(haven)
   dat <- read_dta("https://www.stata-press.com/data/r17/trip.dta")
   fit1 <- msmm(trips ~ cbd + ptn + worker + weekend + tcost |
@@ -586,7 +587,8 @@ test_that("Stata output check", {
 # Single instrument example ----
 test_that("Single instrument example", {
   skip_on_cran()
-  # Data generation from the example in the ivtools::ivglm() helpfile
+  # skip_if_not_installed("ivtools")
+  # Data generation from the example in the ivtools ivglm() helpfile
   set.seed(9)
   n <- 1000
   psi0 <- 0.5
@@ -597,18 +599,18 @@ test_that("Single instrument example", {
   dat <- data.frame(Z, X, Y)
 
   # ivtools for comparison fit
-  library(ivtools)
-  fitZ.L <- glm(Z ~ 1, data = dat)
-  fitY.LZX <- glm(Y ~ X + Z + X*Z, family = "binomial", data = dat)
-  fitLogGest <- ivglm(estmethod = "g",
-                      X = "X",
-                      fitZ.L = fitZ.L,
-                      fitY.LZX = fitY.LZX,
-                      data = dat,
-                      link = "log",
-                      Y = "Y")
-  logcrr <- fitLogGest$est["X"]
-  logcrrse <- sqrt(fitLogGest$vcov)
+  # library(ivtools)
+  # fitZ.L <- glm(Z ~ 1, data = dat)
+  # fitY.LZX <- glm(Y ~ X + Z + X*Z, family = "binomial", data = dat)
+  # fitLogGest <- ivglm(estmethod = "g",
+  #                     X = "X",
+  #                     fitZ.L = fitZ.L,
+  #                     fitY.LZX = fitY.LZX,
+  #                     data = dat,
+  #                     link = "log",
+  #                     Y = "Y")
+  logcrr <- 0.1314654 # fitLogGest$est["X"]
+  logcrrse <- 0.06035374 # sqrt(fitLogGest$vcov)
 
   fit01 <- msmm(Y ~ X | Z, data = dat)
   expect_equal(log(fit01$crrci[1]), logcrr, tolerance = 0.05, ignore_attr = "names")
@@ -637,7 +639,7 @@ test_that("Single instrument example", {
 # check subset argument ----
 test_that("Check subset argument", {
   skip_on_cran()
-  # Data generation from the example in the ivtools::ivglm() helpfile
+  # Data generation from the example in the ivtools ivglm() helpfile
   set.seed(9)
   n <- 1000
   psi0 <- 0.5

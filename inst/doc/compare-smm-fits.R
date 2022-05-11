@@ -6,7 +6,6 @@ knitr::opts_chunk$set(
 
 ## ----setup--------------------------------------------------------------------
 library(OneSampleMR)
-library(ivtools)
 
 ## -----------------------------------------------------------------------------
 set.seed(12345)
@@ -18,18 +17,6 @@ X <- rbinom(n, 1, 0.7*Z + 0.2*(1 - Z))
 m0 <- plogis(1 + 0.8*X - 0.39*Z)
 Y <- rbinom(n, 1, plogis(psi0*X + log(m0/(1 - m0)))) 
 dat <- data.frame(Z, X, Y)
-
-## -----------------------------------------------------------------------------
-fitZ.L <- glm(Z ~ 1, family = "binomial", data = dat)
-fitY.LZX <- glm(Y ~ X, family = "binomial", data = dat)
-fit01 <- ivglm(estmethod = "g", X = "X", Y = "Y",
-                  fitZ.L = fitZ.L, fitY.LZX = fitY.LZX, 
-                  data = dat, link = "log")
-summary(fit01)
-confint(fit01)
-
-## -----------------------------------------------------------------------------
-exp(cbind(fit01$est, confint(fit01)))
 
 ## -----------------------------------------------------------------------------
 fit02 <- msmm(Y ~ X | Z, data = dat)
