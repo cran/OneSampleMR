@@ -20,7 +20,7 @@
 #' @return
 #' An object of class `"tsri"` with the following elements
 #' \describe{
-#' \item{fit}{the fitted object of class `"gmm"` from the call to [gmm::gmm].}
+#' \item{fit}{the fitted object of class `"gmm"` from the call to [gmm::gmm()].}
 #' \item{estci}{a matrix of the estimates with their corresponding confidence interval limits.}
 #' \item{link}{a character vector containing the specificed link function.}
 #' }
@@ -77,7 +77,6 @@
 #' dat <- data.frame(Z, X, Y)
 #' tsrilogitfit <- tsri(Y ~ X | Z , data = dat, link = "logit")
 #' summary(tsrilogitfit)
-#' @importFrom stats lm residuals glm poisson Gamma binomial
 #' @export
 tsri <- function(formula, instruments, data, subset, na.action,
                  contrasts = NULL,
@@ -110,28 +109,28 @@ tsri <- function(formula, instruments, data, subset, na.action,
   )
   stopifnot(length(formula)[1L] == 1L, length(formula)[2L] %in% 1L:2L)
   ## try to handle dots in formula
-  has_dot <- function(formula) inherits(try(terms(formula), silent = TRUE), "try-error")
+  has_dot <- function(formula) inherits(try(stats::terms(formula), silent = TRUE), "try-error")
   if(has_dot(formula)) {
     f1 <- formula(formula, rhs = 1L)
     f2 <- formula(formula, lhs = 0L, rhs = 2L)
     if(!has_dot(f1) & has_dot(f2)) formula <- Formula::as.Formula(f1,
-                                                                  update(formula(formula, lhs = 0L, rhs = 1L), f2))
+                                                                  stats::update(formula(formula, lhs = 0L, rhs = 1L), f2))
   }
   ## call model.frame()
   mf$formula <- formula
   mf[[1]] <- as.name("model.frame")
   mf <- eval(mf, parent.frame())
   ## extract response, terms, model matrices
-  Y <- model.response(mf, "numeric")
-  mt <- terms(formula, data = data)
-  mtX <- terms(formula, data = data, rhs = 1)
-  X <- model.matrix(mtX, mf, contrasts)
+  Y <- stats::model.response(mf, "numeric")
+  mt <- stats::terms(formula, data = data)
+  mtX <- stats::terms(formula, data = data, rhs = 1)
+  X <- stats::model.matrix(mtX, mf, contrasts)
   if(length(formula)[2] < 2L) {
     mtZ <- NULL
     Z <- NULL
   } else {
-    mtZ <- delete.response(terms(formula, data = data, rhs = 2))
-    Z <- model.matrix(mtZ, mf, contrasts)
+    mtZ <- stats::delete.response(stats::terms(formula, data = data, rhs = 2))
+    Z <- stats::model.matrix(mtZ, mf, contrasts)
   }
   ## weights and offset
   # weights <- model.weights(mf)
@@ -166,28 +165,28 @@ tsri <- function(formula, instruments, data, subset, na.action,
 
   # initial values
   if (is.null(t0)) {
-    stage1 <- lm(X[,2] ~ -1 + Z)
-    t0 <- coef(stage1)
-    res <- residuals(stage1)
+    stage1 <- stats::lm(X[,2] ~ -1 + Z)
+    t0 <- stats::coef(stage1)
+    res <- stats::residuals(stage1)
     if (tsri_env$anycovs) {
       res <- cbind(res, covariates)
     }
     if (link == "identity") {
-      stage2 <- lm(Y ~ X[,2] + res)
+      stage2 <- stats::lm(Y ~ X[,2] + res)
     }
     else if (link == "logadd") {
-      stage2 <- glm(Y ~ X[,2] + res, family = poisson(link = "log"))
+      stage2 <- stats::glm(Y ~ X[,2] + res, family = stats::poisson(link = "log"))
     }
     else if (link == "logmult") {
       Ystar <- Y
       Ystar[Y == 0] <- 0.001
-      stage2 <- glm(Ystar ~ X[,2] + res, family = Gamma(link = "log"),
+      stage2 <- stats::glm(Ystar ~ X[,2] + res, family = stats::Gamma(link = "log"),
                     control = list(maxit = 1E5))
     }
     else if (link == "logit") {
-      stage2 <- glm(Y ~ X[,2] + res, family = binomial(link = "logit"))
+      stage2 <- stats::glm(Y ~ X[,2] + res, family = stats::binomial(link = "logit"))
     }
-    t0 <- c(t0, coef(stage2))
+    t0 <- c(t0, stats::coef(stage2))
 
     if (!tsri_env$anycovs)
       xindex <- length(t0) - 1
@@ -247,7 +246,6 @@ tsri <- function(formula, instruments, data, subset, na.action,
     return(reslist)
   }
 
-  #' @importFrom stats lm residuals
   tsriIdentityMoments <- function(theta, x){
     # extract variables from x
     Y <- as.matrix(x[,"y"])
@@ -272,8 +270,8 @@ tsri <- function(formula, instruments, data, subset, na.action,
 
     # generate first stage residuals
     if (length(tsri_env$xnames) == 1) {
-      stage1 <- lm(X ~ Z)
-      res <- as.matrix(residuals(stage1))
+      stage1 <- stats::lm(X ~ Z)
+      res <- as.matrix(stats::residuals(stage1))
       res <- cbind(X, res)
     }
 
@@ -318,7 +316,6 @@ tsri <- function(formula, instruments, data, subset, na.action,
     return(moments)
   }
 
-  #' @importFrom stats lm residuals
   tsriLogaddMoments <- function(theta, x){
     # extract variables from x
     Y <- as.matrix(x[,"y"])
@@ -343,8 +340,8 @@ tsri <- function(formula, instruments, data, subset, na.action,
 
     # generate first stage residuals
     if (length(tsri_env$xnames) == 1) {
-      stage1 <- lm(X ~ Z)
-      res <- as.matrix(residuals(stage1))
+      stage1 <- stats::lm(X ~ Z)
+      res <- as.matrix(stats::residuals(stage1))
       res <- cbind(X, res)
     }
 
@@ -389,7 +386,6 @@ tsri <- function(formula, instruments, data, subset, na.action,
     return(moments)
   }
 
-  #' @importFrom stats lm residuals
   tsriLogmultMoments <- function(theta, x){
     # extract variables from x
     Y <- as.matrix(x[,"y"])
@@ -414,8 +410,8 @@ tsri <- function(formula, instruments, data, subset, na.action,
 
     # generate first stage residuals
     if (length(tsri_env$xnames) == 1) {
-      stage1 <- lm(X ~ Z)
-      res <- as.matrix(residuals(stage1))
+      stage1 <- stats::lm(X ~ Z)
+      res <- as.matrix(stats::residuals(stage1))
       res <- cbind(X, res)
     }
 
@@ -460,7 +456,6 @@ tsri <- function(formula, instruments, data, subset, na.action,
     return(moments)
   }
 
-  #' @importFrom stats lm residuals
   tsriLogitMoments <- function(theta, x){
     # extract variables from x
     Y <- as.matrix(x[,"y"])
@@ -485,8 +480,8 @@ tsri <- function(formula, instruments, data, subset, na.action,
 
     # generate first stage residuals
     if (length(tsri_env$xnames) == 1) {
-      stage1 <- lm(X ~ Z)
-      res <- as.matrix(residuals(stage1))
+      stage1 <- stats::lm(X ~ Z)
+      res <- as.matrix(stats::residuals(stage1))
       res <- cbind(X, res)
     }
 
@@ -506,13 +501,13 @@ tsri <- function(formula, instruments, data, subset, na.action,
     }
 
     if (tsri_env$anycovs) {
-      stage2express <- (Y - plogis(theta[stage2start] +
+      stage2express <- (Y - stats::plogis(theta[stage2start] +
                                      thetacausal*X +
                                      thetares * (X - as.matrix(linearpredictor)) +
                                      as.matrix(covariates) %*% as.matrix(thetacov)))
     }
     else {
-      stage2express <- (Y - plogis(theta[stage2start] +
+      stage2express <- (Y - stats::plogis(theta[stage2start] +
                                      thetacausal*X +
                                      thetares * (X - as.matrix(linearpredictor))))
     }
@@ -553,7 +548,7 @@ tsri <- function(formula, instruments, data, subset, na.action,
 #'
 #' @return `summary.tsri()` returns an object of class `"summary.tsri"`. A list with the following elements:
 #'
-#' \item{smry}{An object from a call to [`gmm::summary.gmm()`]}
+#' \item{smry}{An object from a call to [gmm::summary.gmm()]}
 #' \item{object}{The object of class `tsps` passed to the function.}
 #'
 #' @examples

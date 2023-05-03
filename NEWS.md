@@ -1,3 +1,8 @@
+# OneSampleMR 0.1.3
+
+* Update **roxygen2** version used to generate documentation
+* Reduce the number of functions imported from other packages
+
 # OneSampleMR 0.1.2
 
 * Make use of packages in Suggests list conditional on their availability

@@ -28,7 +28,7 @@
 #' @param na.action a function that indicates what should happen when the data
 #' contain \code{NA}s. The default is set by the \code{na.action} option.
 #' @param contrasts an optional list. See the \code{contrasts.arg} of
-#' \code{\link[stats:model.matrix]{model.matrix.default}}.
+#' [stats::model.matrix()].
 #' @param estmethod Estimation method, please use one of
 #'
 #'    * `"gmm"` GMM estimation of the MSMM (the default).
@@ -48,7 +48,7 @@
 #' @param ... further arguments passed to or from other methods.
 #' @return An object of class `"msmm"`. A list with the following items:
 #'
-#' \item{fit}{The object from either a [`gmm::gmm()`] or [`ivreg::ivreg()`] fit.}
+#' \item{fit}{The object from either a [gmm::gmm()] or [ivreg::ivreg()] fit.}
 #' \item{crrci}{The causal risk ratio/s and it corresponding 95% confidence
 #' interval limits.}
 #' \item{estmethod}{The specified `estmethod`.}
@@ -61,7 +61,7 @@
 #' If `estmethod` is `"tsls"` or `"tslsalt"`:
 #'
 #' \item{stage1}{An object containing the first stage regression from an
-#' [`stats::lm()`] fit.}
+#' [stats::lm()] fit.}
 #' @references
 #' Cameron AC, Trivedi PK. Regression analysis of count data. 2nd ed. 2013.
 #' New York, Cambridge University Press. ISBN:1107667275
@@ -141,7 +141,6 @@
 #' fit2 <- msmm(Y ~ X | G1 + G2 + G3, data = dat2)
 #' summary(fit2)
 #' @export
-#' @importFrom stats coef confint delete.response model.matrix model.response terms update vcov
 msmm <- function(formula, instruments, data, subset, na.action,
                  contrasts = NULL,
                  estmethod = c("gmm", "gmmalt", "tsls", "tslsalt"),
@@ -173,28 +172,28 @@ msmm <- function(formula, instruments, data, subset, na.action,
   )
   stopifnot(length(formula)[1L] == 1L, length(formula)[2L] %in% 1L:2L)
   ## try to handle dots in formula
-  has_dot <- function(formula) inherits(try(terms(formula), silent = TRUE), "try-error")
+  has_dot <- function(formula) inherits(try(stats::terms(formula), silent = TRUE), "try-error")
   if(has_dot(formula)) {
     f1 <- formula(formula, rhs = 1L)
     f2 <- formula(formula, lhs = 0L, rhs = 2L)
     if(!has_dot(f1) & has_dot(f2)) formula <- Formula::as.Formula(f1,
-                                                                  update(formula(formula, lhs = 0L, rhs = 1L), f2))
+                                                                  stats::update(formula(formula, lhs = 0L, rhs = 1L), f2))
   }
   ## call model.frame()
   mf$formula <- formula
   mf[[1]] <- as.name("model.frame")
   mf <- eval(mf, parent.frame())
   ## extract response, terms, model matrices
-  Y <- model.response(mf, "numeric")
-  mt <- terms(formula, data = data)
-  mtX <- terms(formula, data = data, rhs = 1)
-  X <- model.matrix(mtX, mf, contrasts)
+  Y <- stats::model.response(mf, "numeric")
+  mt <- stats::terms(formula, data = data)
+  mtX <- stats::terms(formula, data = data, rhs = 1)
+  X <- stats::model.matrix(mtX, mf, contrasts)
   if(length(formula)[2] < 2L) {
     mtZ <- NULL
     Z <- NULL
   } else {
-    mtZ <- delete.response(terms(formula, data = data, rhs = 2))
-    Z <- model.matrix(mtZ, mf, contrasts)
+    mtZ <- stats::delete.response(stats::terms(formula, data = data, rhs = 2))
+    Z <- stats::model.matrix(mtZ, mf, contrasts)
   }
   ## weights and offset
   # weights <- model.weights(mf)
@@ -251,26 +250,26 @@ msmm_tsls <- function(x, y, z) {
   exposure <- y * x
 
   # first stage
-  stage1 <- lm(exposure ~ z)
+  stage1 <- stats::lm(exposure ~ z)
 
   # tsls fit
   fit <- ivreg::ivreg(outcome ~ exposure | z)
 
   # transformed causal risk ratio estimate
-  beta <- coef(fit)
+  beta <- stats::coef(fit)
 
   # log crr
   logcrr <- log(-1 / beta[2])
 
   # delta-method SE for log crr
-  estvar <- vcov(fit)
+  estvar <- stats::vcov(fit)
   logcrrse <- msm::deltamethod(~ log(-1 / x2), beta, estvar)
 
   # crr with 95% CI
   crrci <- unname(c(-1/beta[2], exp(logcrr - 1.96*logcrrse), exp(logcrr + 1.96*logcrrse)))
 
   # baseline risk
-  ey0ci <- cbind(coef(fit), confint(fit))[1,]
+  ey0ci <- cbind(stats::coef(fit), stats::confint(fit))[1,]
 
   # list of results to return
   reslist <- list(stage1 = stage1,
@@ -287,19 +286,19 @@ msmm_tsls_alt <- function(x, y, z) {
   exposure <- y * (1 - x)
 
   # first stage
-  stage1 <- lm(exposure ~ z)
+  stage1 <- stats::lm(exposure ~ z)
 
   # tsls fit
   fit <- ivreg::ivreg(outcome ~ exposure | z)
 
   # transformed causal risk ratio estimate
-  beta <- coef(fit)
+  beta <- stats::coef(fit)
 
   # log crr
   logcrr <- log(-1 * beta[2])
 
   # delta-method SE for log crr
-  estvar <- vcov(fit)
+  estvar <- stats::vcov(fit)
   logcrrse <- msm::deltamethod(~ log(-1 * x2), beta, estvar)
 
   # crr with 95% CI
@@ -436,8 +435,8 @@ msmm_gmm_alt <- function(x, y, z, xnames, t0) {
 #'
 #' @return `summary.msmm()` returns an object of class `"summary.msmm"`. A list with the following elements:
 #'
-#' \item{smry}{An object from a call to either [`gmm::summary.gmm()`] or
-#' [`ivreg::summary.ivreg()`].}
+#' \item{smry}{An object from a call to either [gmm::summary.gmm()] or
+#' [ivreg::summary.ivreg()].}
 #' \item{object}{The object of class `msmm` passed to the function.}
 #'
 #' @examples

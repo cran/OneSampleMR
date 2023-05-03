@@ -17,14 +17,7 @@ tsri(
 )
 }
 \arguments{
-\item{formula}{formula specification(s) of the regression
-relationship and the instruments. Either \code{instruments} is missing and
-\code{formula} has three parts as in \code{y ~ x1 + x2 | z1 + z2 + z3}
-(recommended) or \code{formula} is \code{y ~ x1 + x2} and \code{instruments}
-is a one-sided formula \code{~ z1 + z2 + z3} (only for backward
-compatibility).}
-
-\item{instruments}{formula specification(s) of the regression
+\item{formula, instruments}{formula specification(s) of the regression
 relationship and the instruments. Either \code{instruments} is missing and
 \code{formula} has three parts as in \code{y ~ x1 + x2 | z1 + z2 + z3}
 (recommended) or \code{formula} is \code{y ~ x1 + x2} and \code{instruments}
@@ -42,7 +35,7 @@ used in fitting the model.}
 contain \code{NA}s. The default is set by the \code{na.action} option.}
 
 \item{contrasts}{an optional list. See the \code{contrasts.arg} of
-\code{\link[stats:model.matrix]{model.matrix.default}}.}
+\code{\link[stats:model.matrix]{stats::model.matrix()}}.}
 
 \item{t0}{A vector of starting values for the gmm optimizer. This should
 have length equal to the number of exposures plus 1.}
@@ -58,7 +51,7 @@ regression; \code{"logadd"} is log-additive and corresponds to Poisson / log-bin
 \value{
 An object of class \code{"tsri"} with the following elements
 \describe{
-\item{fit}{the fitted object of class \code{"gmm"} from the call to \link[gmm:gmm]{gmm::gmm}.}
+\item{fit}{the fitted object of class \code{"gmm"} from the call to \code{\link[gmm:gmm]{gmm::gmm()}}.}
 \item{estci}{a matrix of the estimates with their corresponding confidence interval limits.}
 \item{link}{a character vector containing the specificed link function.}
 }

@@ -18,7 +18,7 @@
 #'  `"logit"` corresponds to logistic regression.
 #' @return An object of class `"tsps"` with the following elements
 #' \describe{
-#' \item{fit}{the fitted object of class `"gmm"` from the call to [gmm::gmm].}
+#' \item{fit}{the fitted object of class `"gmm"` from the call to [gmm::gmm()].}
 #' \item{estci}{a matrix of the estimates with their corresponding confidence interval limits.}
 #' \item{link}{a character vector containing the specificed link function.}
 #' }
@@ -64,7 +64,6 @@
 #' dat <- data.frame(Z, X, Y)
 #' tspslogitfit <- tsps(Y ~ X | Z , data = dat, link = "logit")
 #' summary(tspslogitfit)
-#' @importFrom stats lm fitted.values glm poisson Gamma binomial
 #' @export
 tsps <- function(formula, instruments, data, subset, na.action,
                  contrasts = NULL,
@@ -97,28 +96,28 @@ tsps <- function(formula, instruments, data, subset, na.action,
   )
   stopifnot(length(formula)[1L] == 1L, length(formula)[2L] %in% 1L:2L)
   ## try to handle dots in formula
-  has_dot <- function(formula) inherits(try(terms(formula), silent = TRUE), "try-error")
+  has_dot <- function(formula) inherits(try(stats::terms(formula), silent = TRUE), "try-error")
   if(has_dot(formula)) {
     f1 <- formula(formula, rhs = 1L)
     f2 <- formula(formula, lhs = 0L, rhs = 2L)
     if(!has_dot(f1) & has_dot(f2)) formula <- Formula::as.Formula(f1,
-                                                                  update(formula(formula, lhs = 0L, rhs = 1L), f2))
+                                                                  stats::update(formula(formula, lhs = 0L, rhs = 1L), f2))
   }
   ## call model.frame()
   mf$formula <- formula
   mf[[1]] <- as.name("model.frame")
   mf <- eval(mf, parent.frame())
   ## extract response, terms, model matrices
-  Y <- model.response(mf, "numeric")
-  mt <- terms(formula, data = data)
-  mtX <- terms(formula, data = data, rhs = 1)
-  X <- model.matrix(mtX, mf, contrasts)
+  Y <- stats::model.response(mf, "numeric")
+  mt <- stats::terms(formula, data = data)
+  mtX <- stats::terms(formula, data = data, rhs = 1)
+  X <- stats::model.matrix(mtX, mf, contrasts)
   if(length(formula)[2] < 2L) {
     mtZ <- NULL
     Z <- NULL
   } else {
-    mtZ <- delete.response(terms(formula, data = data, rhs = 2))
-    Z <- model.matrix(mtZ, mf, contrasts)
+    mtZ <- stats::delete.response(stats::terms(formula, data = data, rhs = 2))
+    Z <- stats::model.matrix(mtZ, mf, contrasts)
   }
   ## weights and offset
   # weights <- model.weights(mf)
@@ -152,28 +151,28 @@ tsps <- function(formula, instruments, data, subset, na.action,
 
   # initial values
   if (is.null(t0)) {
-    stage1 <- lm(X[,2] ~ -1 + Z)
-    t0 <- coef(stage1)
-    xhat <- fitted.values(stage1)
+    stage1 <- stats::lm(X[,2] ~ -1 + Z)
+    t0 <- stats::coef(stage1)
+    xhat <- stats::fitted.values(stage1)
     if (tsps_env$anycovs) {
       xhat <- cbind(xhat, covariates)
     }
     if (link == "identity") {
-      stage2 <- lm(Y ~ xhat)
+      stage2 <- stats::lm(Y ~ xhat)
     }
     else if (link == "logadd") {
-      stage2 <- glm(Y ~ xhat, family = poisson(link = "log"))
+      stage2 <- stats::glm(Y ~ xhat, family = stats::poisson(link = "log"))
     }
     else if (link == "logmult") {
       Ystar <- Y
       Ystar[Y == 0] <- 0.001
-      stage2 <- glm(Ystar ~ xhat, family = Gamma(link = "log"),
+      stage2 <- stats::glm(Ystar ~ xhat, family = stats::Gamma(link = "log"),
                     control = list(maxit = 1E5))
     }
     else if (link == "logit") {
-      stage2 <- glm(Y ~ xhat, family = binomial(link = "logit"))
+      stage2 <- stats::glm(Y ~ xhat, family = stats::binomial(link = "logit"))
     }
-    t0 <- c(t0, coef(stage2))
+    t0 <- c(t0, stats::coef(stage2))
   }
 
   Xtopass <- as.data.frame(X[, tsps_env$xnames])
@@ -227,7 +226,6 @@ tsps <- function(formula, instruments, data, subset, na.action,
     return(reslist)
   }
 
-  #' @importFrom stats lm fitted.values
   tspsIdentityMoments <- function(theta, x){
     # extract variables from x
     Y <- as.matrix(x[,"y"])
@@ -248,8 +246,8 @@ tsps <- function(formula, instruments, data, subset, na.action,
 
     # generate first stage predicted values
     if (length(tsps_env$xnames) == 1) {
-      stage1 <- lm(X ~ Z)
-      xhat <- as.matrix(fitted.values(stage1))
+      stage1 <- stats::lm(X ~ Z)
+      xhat <- as.matrix(stats::fitted.values(stage1))
     }
 
     if (tsps_env$anycovs) {
@@ -287,7 +285,6 @@ tsps <- function(formula, instruments, data, subset, na.action,
     return(moments)
   }
 
-  #' @importFrom stats lm fitted.values
   tspsLogaddMoments <- function(theta, x){
     # extract variables from x
     Y <- as.matrix(x[,"y"])
@@ -308,8 +305,8 @@ tsps <- function(formula, instruments, data, subset, na.action,
 
     # generate first stage predicted values
     if (length(tsps_env$xnames) == 1) {
-      stage1 <- lm(X ~ Z)
-      xhat <- as.matrix(fitted.values(stage1))
+      stage1 <- stats::lm(X ~ Z)
+      xhat <- as.matrix(stats::fitted.values(stage1))
     }
 
     if (tsps_env$anycovs) {
@@ -347,7 +344,6 @@ tsps <- function(formula, instruments, data, subset, na.action,
     return(moments)
   }
 
-  #' @importFrom stats lm fitted.values
   tspsLogmultMoments <- function(theta, x){
     # extract variables from x
     Y <- as.matrix(x[,"y"])
@@ -368,8 +364,8 @@ tsps <- function(formula, instruments, data, subset, na.action,
 
     # generate first stage predicted values
     if (length(tsps_env$xnames) == 1) {
-      stage1 <- lm(X ~ Z)
-      xhat <- as.matrix(fitted.values(stage1))
+      stage1 <- stats::lm(X ~ Z)
+      xhat <- as.matrix(stats::fitted.values(stage1))
     }
 
     if (tsps_env$anycovs) {
@@ -407,7 +403,6 @@ tsps <- function(formula, instruments, data, subset, na.action,
     return(moments)
   }
 
-  #' @importFrom stats lm fitted.values plogis
   tspsLogitMoments <- function(theta, x){
     # extract variables from x
     Y <- as.matrix(x[,"y"])
@@ -428,8 +423,8 @@ tsps <- function(formula, instruments, data, subset, na.action,
 
     # generate first stage predicted values
     if (length(tsps_env$xnames) == 1) {
-      stage1 <- lm(X ~ Z)
-      xhat <- as.matrix(fitted.values(stage1))
+      stage1 <- stats::lm(X ~ Z)
+      xhat <- as.matrix(stats::fitted.values(stage1))
     }
 
     if (tsps_env$anycovs) {
@@ -455,12 +450,12 @@ tsps <- function(formula, instruments, data, subset, na.action,
     }
 
     thetastart <- stage2start + 1
-    moments[,stage2start] <- (Y - plogis(theta[stage2start] + as.matrix(stage2linpred) %*% as.matrix(theta[thetastart:thetaend])))
+    moments[,stage2start] <- (Y - stats::plogis(theta[stage2start] + as.matrix(stage2linpred) %*% as.matrix(theta[thetastart:thetaend])))
 
     start3 <- stage2start + 1
     j <- 1
     for (i in start3:thetaend) {
-      moments[,i] <- (Y - plogis(theta[stage2start] + as.matrix(stage2linpred) %*% as.matrix(theta[thetastart:thetaend])))*xhat[,j]
+      moments[,i] <- (Y - stats::plogis(theta[stage2start] + as.matrix(stage2linpred) %*% as.matrix(theta[thetastart:thetaend])))*xhat[,j]
       j <- j + 1
     }
 
@@ -489,7 +484,7 @@ tsps <- function(formula, instruments, data, subset, na.action,
 #'
 #' @return `summary.tsps()` returns an object of class `"summary.tsps"`. A list with the following elements:
 #'
-#' \item{smry}{An object from a call to [`gmm::summary.gmm()`]}
+#' \item{smry}{An object from a call to [gmm::summary.gmm()]}
 #' \item{object}{The object of class `tsps` passed to the function.}
 #'
 #' @examples
