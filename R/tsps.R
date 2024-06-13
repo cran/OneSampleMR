@@ -55,13 +55,13 @@
 #' # Two-stage predictor substitution estimator
 #' # with second stage logistic regression
 #' set.seed(9)
-#' n <- 1000
-#' psi0 <- 0.5
-#' Z <- rbinom(n, 1, 0.5)
-#' X <- rbinom(n, 1, 0.7*Z + 0.2*(1 - Z))
-#' m0 <- plogis(1 + 0.8*X - 0.39*Z)
-#' Y <- rbinom(n, 1, plogis(psi0*X + log(m0/(1 - m0))))
-#' dat <- data.frame(Z, X, Y)
+#' n            <- 1000
+#' psi0         <- 0.5
+#' Z            <- rbinom(n, 1, 0.5)
+#' X            <- rbinom(n, 1, 0.7*Z + 0.2*(1 - Z))
+#' m0           <- plogis(1 + 0.8*X - 0.39*Z)
+#' Y            <- rbinom(n, 1, plogis(psi0*X + log(m0/(1 - m0))))
+#' dat          <- data.frame(Z, X, Y)
 #' tspslogitfit <- tsps(Y ~ X | Z , data = dat, link = "logit")
 #' summary(tspslogitfit)
 #' @export
@@ -73,6 +73,8 @@ tsps <- function(formula, instruments, data, subset, na.action,
   # ivreg::ivreg() arguments I haven't implemented:
   # weights, offset,
   # model = TRUE, y = TRUE, x = FALSE,
+
+  ellipsis::check_dots_used()
 
   # code from beginning for ivreg::ivreg()
   ## set up model.frame() call

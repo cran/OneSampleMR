@@ -1,4 +1,4 @@
-## ---- include=FALSE-----------------------------------------------------------
+## ----include=FALSE------------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
@@ -9,14 +9,14 @@ library(OneSampleMR)
 
 ## -----------------------------------------------------------------------------
 set.seed(12345)
-n <- 5000
+n    <- 5000
 psi0 <- 0.5
 psi1 <- 0.2
-Z <- rbinom(n, 1, 0.5)
-X <- rbinom(n, 1, 0.7*Z + 0.2*(1 - Z)) 
-m0 <- plogis(1 + 0.8*X - 0.39*Z)
-Y <- rbinom(n, 1, plogis(psi0*X + log(m0/(1 - m0)))) 
-dat <- data.frame(Z, X, Y)
+Z    <- rbinom(n, 1, 0.5)
+X    <- rbinom(n, 1, 0.7*Z + 0.2*(1 - Z)) 
+m0   <- plogis(1 + 0.8*X - 0.39*Z)
+Y    <- rbinom(n, 1, plogis(psi0*X + log(m0/(1 - m0)))) 
+dat  <- data.frame(Z, X, Y)
 
 ## -----------------------------------------------------------------------------
 fit02 <- msmm(Y ~ X | Z, data = dat)

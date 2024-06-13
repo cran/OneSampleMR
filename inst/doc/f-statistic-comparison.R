@@ -1,4 +1,4 @@
-## ---- include=FALSE-----------------------------------------------------------
+## ----include=FALSE------------------------------------------------------------
 # Only run code chunks if Suggests packages available
 suggestsavailable <-
   sapply(c("lfe", "haven"), requireNamespace, quietly = TRUE)

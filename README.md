@@ -1,9 +1,11 @@
-# OneSampleMR
+# OneSampleMR: Useful functions for one-sample Mendelian randomization and instrumental variable analyses
+
 <!-- badges: start -->
-[![R-CMD-check](https://github.com/remlapmot/OneSampleMR/workflows/R-CMD-check/badge.svg)](https://github.com/remlapmot/OneSampleMR/actions?workflow=R-CMD-check)
+[![R-CMD-check](https://github.com/remlapmot/OneSampleMR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/remlapmot/OneSampleMR/actions/workflows/R-CMD-check.yaml)
 [![CRAN status](https://www.r-pkg.org/badges/version/OneSampleMR)](https://cran.r-project.org/package=OneSampleMR)
 [![RStudio_CRAN_mirror_downloads_badge](http://cranlogs.r-pkg.org/badges/grand-total/OneSampleMR?color=blue)](https://CRAN.R-project.org/package=OneSampleMR)
 [![Codecov test coverage](https://codecov.io/gh/remlapmot/OneSampleMR/branch/main/graph/badge.svg)](https://app.codecov.io/gh/remlapmot/OneSampleMR?branch=main)
+[![r-universe](https://remlapmot.r-universe.dev/badges/OneSampleMR)](https://remlapmot.r-universe.dev/OneSampleMR)
 <!-- badges: end -->
 
 Useful functions for one sample, individual level data, Mendelian randomization / instrumental variable 
@@ -22,24 +24,51 @@ analyses, including implementations of:
 ### Released version
 
 Install the package from CRAN using
+
 ``` r
 install.packages("OneSampleMR")
 ```
 
 To check for updates run
+
 ``` r
 update.packages()
-```  
+```
+
+### Issue with gmm package versions 1.6-5, 1.6-6, 1.7 on macOS
+
+Using these old versions of the **gmm** package, a GNU Fortran installation was required even if the binary version of the package was installed.
+
+The fix is to update to the current version of **gmm**, which is version 1.8.
+
+If you cannot update your version of **gmm** then
+
+* The current version of GNU Fortran to install is documented [here](https://mac.r-project.org/tools/) and available [here](https://mac.r-project.org/tools/gfortran-12.2-universal.pkg)
+* Note that the version of Fortran available from Homebrew will probably not work
 
 ### Development version
 
-Install the development version of the package from GitHub using
+Install the development version of the package from source from GitHub using
+
 ``` r
 # install.packages("remotes") # uncomment on first run
 remotes::install_github("remlapmot/OneSampleMR")
 ```
 
 To check for and install updates to the development version run the previous command again or run
+
 ``` r
 remotes::update_packages()
+```
+
+A binary of the development version of the package (for Windows, macOS, and Ubuntu Jammy Jellyfish) can be installed from r-universe using
+
+``` r
+install.packages('OneSampleMR', repos = c('https://remlapmot.r-universe.dev', 'https://cloud.r-project.org'))
+```
+
+which can be updated using
+
+```r
+update.packages(repos = c('https://remlapmot.r-universe.dev', 'https://cloud.r-project.org'))
 ```
