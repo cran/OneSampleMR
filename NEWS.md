@@ -1,3 +1,7 @@
+# OneSampleMR 0.1.5
+
+* Replaced dots checking with rlang instead of the ellipsis package (thanks @olivroy).
+
 # OneSampleMR 0.1.4
 
 * Add `CITATION` file
