@@ -50,8 +50,13 @@ fsw.ivreg <- function(object) {
 
   ninstruments <- length(object$instruments)
   nexogenous <- length(object$exogenous) - 1
-  namesendog <- names(object$endogenous)
-  namesexog <- names(object$exogenous[-1])
+  namesendog <- labels(object$terms$regressors)[1:nendog]
+  endogfcterrmsg <- paste("One or more of your exposure variables is a factor.",
+                          "Please convert to numeric with say as.numeric(),",
+                          "refit your ivreg() model, and rerun fsw().")
+  if ("factor" %in% lapply(object$model[namesendog], class)) stop(endogfcterrmsg)
+
+  namesexog <- labels(object$terms$regressors)[-(1:nendog)]
   namesinstruments <- names(object$instruments)
   n <- object$n
   fsw <- fswdf <- fswresdf <- fswp <- numeric(nendog)
@@ -79,16 +84,16 @@ fsw.ivreg <- function(object) {
     }
     modelfor <- stats::as.formula(modelstr)
     condmod <- try(ivreg::ivreg(modelfor, data = object$model), silent = TRUE)
-    condmoderrmsg = paste("The IV regression of one of the exposures",
-                          "on the other/s has failed.",
-                          "This is most likely because you have a transformation",
-                          "on one or more of the exposure or instrumental variables.",
-                          "Please create the transformed variable/s in your",
-                          "data.frame and refit,",
-                          "e.g. instead of creating your ivreg object from",
-                          "ivreg(y ~ log(x1) + x2 | z1 + z2 + z3)",
-                          "please create dat$logx1 = log(x1) in your data.frame",
-                          "and fit ivreg(y ~ logx1 + x2 | z1 + z2 + z3).")
+    condmoderrmsg <- paste("The IV regression of one of the exposures",
+                           "on the other/s has failed.",
+                           "This is most likely because you have a transformation",
+                           "on one or more of the exposure or instrumental variables.",
+                           "Please create the transformed variable/s in your",
+                           "data.frame and refit,",
+                           "e.g. instead of creating your ivreg object from",
+                           "ivreg(y ~ log(x1) + x2 | z1 + z2 + z3)",
+                           "please create dat$logx1 = log(x1) in your data.frame",
+                           "and fit ivreg(y ~ logx1 + x2 | z1 + z2 + z3).")
     if (inherits(condmod, "try-error")) stop(condmoderrmsg)
     condres <- condmod$residuals
     if (nexogenous > 0) {
@@ -113,9 +118,9 @@ fsw.ivreg <- function(object) {
     fswp[i] <- stats::pf(fsw[i], nendog, wldtst$Res.Df[2L], lower.tail = FALSE)
   }
 
-  fswres = cbind(fsw, fswdf, fswresdf, fswp)
-  rownames(fswres) = namesendog
-  colnames(fswres) = c("F value","d.f.","Residual d.f.","Pr(>F)")
+  fswres <- cbind(fsw, fswdf, fswresdf, fswp)
+  rownames(fswres) <- namesendog
+  colnames(fswres) <- c("F value", "d.f.", "Residual d.f.", "Pr(>F)")
 
   output <- list(fswres = fswres,
                  namesendog = namesendog,

@@ -13,18 +13,18 @@ test_that("Expect error when object from ivreg(..., model=FALSE)", {
 test_that("Check run after ivreg model", {
   object <- ivreg(packs ~ rprice + rincome | salestax + cigtax + packsdiff,
                   data = CigaretteDemand)
-  res = fsw(object)
-  expect_equal(res$fswres[1,1], 4.884, tolerance = 1e-2)
-  expect_equal(res$fswres[2,1], 3.450, tolerance = 1e-2)
+  res <- fsw(object)
+  expect_equal(res$fswres[1, 1], 4.884, tolerance = 1e-2)
+  expect_equal(res$fswres[2, 1], 3.450, tolerance = 1e-2)
 })
 
 test_that("Check run with ivreg model object with transformations of outcome", {
   object <- ivreg(log(packs) ~ rprice + rincome |
                     salestax + cigtax + packsdiff,
                   data = CigaretteDemand)
-  res = fsw(object)
-  expect_equal(res$fswres[1,1], 4.884, tolerance = 1e-2)
-  expect_equal(res$fswres[2,1], 3.450, tolerance = 1e-2)
+  res <- fsw(object)
+  expect_equal(res$fswres[1, 1], 4.884, tolerance = 1e-2)
+  expect_equal(res$fswres[2, 1], 3.450, tolerance = 1e-2)
 })
 
 test_that("Check error with transformation of exposure", {
@@ -68,10 +68,10 @@ test_that("Check approx. equivalence with lfe package", {
   z2 <- rnorm(n)
   u <- rnorm(n)
   # make x1, x2 correlated with errors u
-  x1 <- z1 + z2 + 0.2*u + rnorm(n)
-  x2 <- z1 + 0.94*z2 - 0.3*u + rnorm(n)
+  x1 <- z1 + z2 + 0.2 * u + rnorm(n)
+  x2 <- z1 + 0.94 * z2 - 0.3 * u + rnorm(n)
   y <- x1 + x2 + u
-  dat <- data.frame(x1,x2,y,z1,z2)
+  dat <- data.frame(x1, x2, y, z1, z2)
   est <- felm(y ~ 1 | 0 | (x1 | x2 ~ z1 + z2), data = dat)
   # summary(est)
   ## Not run:
@@ -86,9 +86,9 @@ test_that("Check approx. equivalence with lfe package", {
   # (it's close to being only one instrument, z1+z2, for both x1 and x2)
   lfefstat <- condfstat(est, quantiles = c(0.05, 0.95))
   mod2 <- ivreg(y ~ x1 + x2 | z1 + z2, data = dat)
-  fstat = fsw(mod2)
-  expect_equal(lfefstat[1], fstat$fswres[1,1], tolerance = 1e-2)
-  expect_equal(lfefstat[2], fstat$fswres[2,1], tolerance = 1e-2)
+  fstat <- fsw(mod2)
+  expect_equal(lfefstat[1], fstat$fswres[1, 1], tolerance = 1e-2)
+  expect_equal(lfefstat[2], fstat$fswres[2, 1], tolerance = 1e-2)
 })
 
 
@@ -104,8 +104,8 @@ test_that("Compare with Stata ivreg2 output", {
   dat <- haven::read_dta(url)
   mod <- ivreg(lwage ~ educ + exper | age + kidslt6 + kidsge6, data = dat)
   condf <- fsw(mod)
-  expect_equal(condf$fswres[1,1], 6.69, tolerance = 1e-2)
-  expect_equal(condf$fswres[2,1], 81.81, tolerance = 1e-2)
+  expect_equal(condf$fswres[1, 1], 6.69, tolerance = 1e-2)
+  expect_equal(condf$fswres[2, 1], 81.81, tolerance = 1e-2)
 })
 
 
@@ -974,3 +974,65 @@ test_that("Compare with Stata ivreg2 output", {
 #
 # . di Fsw21
 # 81.812373
+
+set.seed(20250519)
+
+# Define the number of observations you want to generate
+n <- 300000
+
+# Define the data structure
+# Binary alc_deaths variable
+alc_deaths <- rbinom(n, 1, p = 0.01)
+# Binary sex variable
+sex <- rbinom(n, 1, p = 0.5)
+# Binary belief variable
+bileve <- rbinom(n, 1, p = 0.1)
+# Normal distribution for log_dpw
+log_dpw <- rnorm(n, 2, 1)
+# Normal distribution for education years
+eduyears <- rnorm(n, 14, 5)
+# Normal distribution for intervention
+inter <- rnorm(n, 30, 18)
+# Normal distribution for age
+age <- rnorm(n, 57, 8)
+# Normal distribution for dpw_main_grs
+dpw_main_grs <- rnorm(n, 0, 1)
+# Normal distribution for edu_main_grs
+edu_main_grs <- rnorm(n, 0, 1)
+# Normal distribution for inter_grs
+inter_grs <- rnorm(n, 0.2, 1)
+
+# Create data.frame
+simulated_data <- data.frame(alc_deaths, sex, bileve, log_dpw, eduyears, inter, age, dpw_main_grs, edu_main_grs, inter_grs)
+
+test_that("Example from Zoe Reed with factor variables in covariate list", {
+  # Run with no error
+  tsls_sim <- ivreg::ivreg(alc_deaths ~ log_dpw + eduyears + inter + age + sex + bileve | dpw_main_grs + edu_main_grs + inter_grs + age + sex + bileve, data = simulated_data)
+
+  expect_no_error({fswres1 <- fsw(tsls_sim)})
+
+  # Including factor variable causes error
+  simulated_data$sex <- as.factor(simulated_data$sex)
+
+  tsls_sim2 <- ivreg::ivreg(alc_deaths ~ log_dpw + eduyears + inter + age + sex + bileve | dpw_main_grs + edu_main_grs + inter_grs + age + sex + bileve, data = simulated_data)
+
+  expect_no_error({fswres2 <- fsw(tsls_sim2)})
+
+  expect_equal(fswres1, fswres2)
+})
+
+# Expect failure if a binary exposure is a factor
+simulated_data$expfct <- as.factor(rbinom(n, 1, p = 0.4))
+
+test_that("Test fsw() when exposure is class factor", {
+  tsls_sim3 <- ivreg::ivreg(alc_deaths ~ log_dpw + eduyears + expfct + age + sex + bileve | dpw_main_grs + edu_main_grs + inter_grs + age + sex + bileve, data = simulated_data)
+  expect_error({fsw(tsls_sim3)})
+})
+
+# Expect no error if a binary exposure is numeric
+simulated_data$expfct <- as.numeric(simulated_data$expfct)
+
+test_that("Test fsw() when exposure is binary but numeric", {
+  tsls_sim4 <- ivreg::ivreg(alc_deaths ~ log_dpw + eduyears + expfct + age + sex + bileve | dpw_main_grs + edu_main_grs + inter_grs + age + sex + bileve, data = simulated_data)
+  expect_no_error({fswres4 <- fsw(tsls_sim4)})
+})

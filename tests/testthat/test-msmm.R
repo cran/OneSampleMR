@@ -9,7 +9,7 @@ test_that("Stata output check", {
   fit1 <- msmm(trips ~ cbd + ptn + worker + weekend + tcost |
                  cbd + ptn + worker + weekend + pt,
                data = dat, estmethod = "gmmalt")
-  expect_equal(log(fit1$crrci["tcost",1]), log(1.036),  tolerance = 0.05)
+  expect_equal(log(fit1$crrci["tcost", 1]), log(1.036),  tolerance = 0.05)
   # fit2 <- msmm(trips ~ cbd + ptn + worker + weekend + tcost |
   #                cbd + ptn + worker + weekend + pt,
   #              data = dat)
@@ -593,9 +593,9 @@ test_that("Single instrument example", {
   n <- 1000
   psi0 <- 0.5
   Z <- rbinom(n, 1, 0.5)
-  X <- rbinom(n, 1, 0.7*Z + 0.2*(1 - Z))
-  m0 <- plogis(1 + 0.8*X - 0.39*Z)
-  Y <- rbinom(n, 1, plogis(psi0*X + log(m0/(1 - m0))))
+  X <- rbinom(n, 1, 0.7 * Z + 0.2 * (1 - Z))
+  m0 <- plogis(1 + 0.8 * X - 0.39 * Z)
+  Y <- rbinom(n, 1, plogis(psi0 * X + log(m0 / (1 - m0))))
   dat <- data.frame(Z, X, Y)
 
   # ivtools for comparison fit
@@ -644,11 +644,11 @@ test_that("Check subset argument", {
   n <- 1000
   psi0 <- 0.5
   Z <- rbinom(n, 1, 0.5)
-  X <- rbinom(n, 1, 0.7*Z + 0.2*(1 - Z))
-  m0 <- plogis(1 + 0.8*X - 0.39*Z)
-  Y <- rbinom(n, 1, plogis(psi0*X + log(m0/(1 - m0))))
+  X <- rbinom(n, 1, 0.7 * Z + 0.2 * (1 - Z))
+  m0 <- plogis(1 + 0.8 * X - 0.39 * Z)
+  Y <- rbinom(n, 1, plogis(psi0 * X + log(m0 / (1 - m0))))
   dat <- data.frame(Z, X, Y)
-  datfifty <- dat[1:50,]
+  datfifty <- dat[1:50, ]
   fitcompare <- msmm(Y ~ X | Z, dat = datfifty)
   fitcheck <- msmm(Y ~ X | Z, dat = dat, subset = 1:50)
   expect_equal(fitcheck$crrci, fitcompare$crrci)
@@ -661,9 +661,9 @@ test_that("Check using different variable names", {
   n <- 1000
   psi0 <- 0.5
   Z <- rbinom(n, 1, 0.5)
-  X <- rbinom(n, 1, 0.7*Z + 0.2*(1 - Z))
-  m0 <- plogis(1 + 0.8*X - 0.39*Z)
-  Y <- rbinom(n, 1, plogis(psi0*X + log(m0/(1 - m0))))
+  X <- rbinom(n, 1, 0.7 * Z + 0.2 * (1 - Z))
+  m0 <- plogis(1 + 0.8 * X - 0.39 * Z)
+  Y <- rbinom(n, 1, plogis(psi0 * X + log(m0 / (1 - m0))))
   dat <- data.frame(Z, X, Y)
   dat$E <- dat$X
   dat$R <- dat$Y
@@ -682,9 +682,9 @@ test_that("Multiple instrument example", {
   G2 <- rbinom(n, 2, 0.3)
   G3 <- rbinom(n, 2, 0.4)
   U <- runif(n)
-  pX <- plogis(0.7*G1 + G2 - G3 + U)
+  pX <- plogis(0.7 * G1 + G2 - G3 + U)
   X <- rbinom(n, 1, pX)
-  pY <- plogis(-2 + psi0*X + U)
+  pY <- plogis(-2 + psi0 * X + U)
   Y <- rbinom(n, 1, pY)
   dat <- data.frame(G1, G2, G3, X, Y)
 
@@ -711,9 +711,9 @@ test_that("Non-binary x with tsls and tslsalt methods should produce an error", 
   n <- 1000
   psi0 <- 0.5
   Z <- rbinom(n, 1, 0.5)
-  X <- rbinom(n, 1, 0.7*Z + 0.2*(1 - Z))
-  m0 <- plogis(1 + 0.8*X - 0.39*Z)
-  Y <- rbinom(n, 1, plogis(psi0*X + log(m0/(1 - m0))))
+  X <- rbinom(n, 1, 0.7 * Z + 0.2 * (1 - Z))
+  m0 <- plogis(1 + 0.8 * X - 0.39 * Z)
+  Y <- rbinom(n, 1, plogis(psi0 * X + log(m0 / (1 - m0))))
   dat <- data.frame(Z, X, Y)
   dat$X[1] <- 2
   expect_error(msmm(Y ~ X | Z, data = dat, estmethod = "tsls"))
@@ -727,9 +727,9 @@ test_that("Y needs to be binary for the TSLS methods", {
   n <- 1000
   psi0 <- 0.5
   Z <- rbinom(n, 1, 0.5)
-  X <- rbinom(n, 1, 0.7*Z + 0.2*(1 - Z))
-  m0 <- plogis(1 + 0.8*X - 0.39*Z)
-  Y <- rbinom(n, 1, plogis(psi0*X + log(m0/(1 - m0))))
+  X <- rbinom(n, 1, 0.7 * Z + 0.2 * (1 - Z))
+  m0 <- plogis(1 + 0.8 * X - 0.39 * Z)
+  Y <- rbinom(n, 1, plogis(psi0 * X + log(m0 / (1 - m0))))
   dat <- data.frame(Z, X, Y)
   dat$Y[1] <- 2
   expect_error(msmm(Y ~ X | Z, data = dat, estmethod = "tsls"))
@@ -743,9 +743,9 @@ test_that("Methods fail for non-integer Y", {
   n <- 1000
   psi0 <- 0.5
   Z <- rbinom(n, 1, 0.5)
-  X <- rbinom(n, 1, 0.7*Z + 0.2*(1 - Z))
-  m0 <- plogis(1 + 0.8*X - 0.39*Z)
-  Y <- rbinom(n, 1, plogis(psi0*X + log(m0/(1 - m0))))
+  X <- rbinom(n, 1, 0.7 * Z + 0.2 * (1 - Z))
+  m0 <- plogis(1 + 0.8 * X - 0.39 * Z)
+  Y <- rbinom(n, 1, plogis(psi0 * X + log(m0 / (1 - m0))))
   dat <- data.frame(Z, X, Y)
   dat$Y[1] <- 1.5
   expect_error(msmm(Y ~ X | Z, data = dat, estmethod = "gmm"))
@@ -765,22 +765,22 @@ test_that("Multiple exposure example", {
   G2 <- rbinom(n, 2, 0.3)
   G3 <- rbinom(n, 2, 0.4)
   U <- runif(n)
-  pX1 <- plogis(0.7*G1 + G2 - G3 + U)
+  pX1 <- plogis(0.7 * G1 + G2 - G3 + U)
   X1 <- rbinom(n, 1, pX1)
-  pX2 <- plogis(-1 + 0.2*G1 - 0.2*G2 + 0.4*G3 + U)
+  pX2 <- plogis(-1 + 0.2 * G1 - 0.2 * G2 + 0.4 * G3 + U)
   X2 <- rbinom(n, 1, pX2)
-  pY <- plogis(-2 + psi0*X1 + psi1*X2 + U)
+  pY <- plogis(-2 + psi0 * X1 + psi1 * X2 + U)
   Y <- rbinom(n, 1, pY)
   dat <- data.frame(G1, G2, G3, X1, X2, Y)
 
   fit21 <- msmm(Y ~ X1 + X2 | G1 + G2 + G3, data = dat)
-  expect_equal(log(fit21$crrci[1,1]), 0.08, tolerance = 0.02)
+  expect_equal(log(fit21$crrci[1, 1]), 0.08, tolerance = 0.02)
 
   fit22 <- msmm(Y ~ X1 + X2 | G1 + G2 + G3, data = dat, estmethod = "gmm")
-  expect_equal(log(fit22$crrci[1,1]), 0.08, tolerance = 0.02)
+  expect_equal(log(fit22$crrci[1, 1]), 0.08, tolerance = 0.02)
 
   fit23 <- msmm(Y ~ X1 + X2 | G1 + G2 + G3, data = dat, estmethod = "gmmalt")
-  expect_equal(log(fit23$crrci[1,1]), 0.08, tolerance = 0.1)
+  expect_equal(log(fit23$crrci[1, 1]), 0.08, tolerance = 0.1)
 
   expect_error(msmm(Y ~ X1 + X2 | G1 + G2 + G3, data = dat, estmethod = "tsls"))
   expect_error(msmm(Y ~ X1 + X2 | G1 + G2 + G3, data = dat, estmethod = "tslsalt"))
@@ -797,18 +797,18 @@ test_that("Multiple exposure example with different variable names", {
   G2 <- rbinom(n, 2, 0.3)
   G3 <- rbinom(n, 2, 0.4)
   U <- runif(n)
-  pX1 <- plogis(0.7*G1 + G2 - G3 + U)
+  pX1 <- plogis(0.7 * G1 + G2 - G3 + U)
   X1 <- rbinom(n, 1, pX1)
-  pX2 <- plogis(-1 + 0.2*G1 - 0.2*G2 + 0.4*G3 + U)
+  pX2 <- plogis(-1 + 0.2 * G1 - 0.2 * G2 + 0.4 * G3 + U)
   X2 <- rbinom(n, 1, pX2)
-  pY <- plogis(-2 + psi0*X1 + psi1*X2 + U)
+  pY <- plogis(-2 + psi0 * X1 + psi1 * X2 + U)
   Y <- rbinom(n, 1, pY)
   E1 <- X1
   E2 <- X2
   R <- Y
   dat <- data.frame(G1, G2, G3, E1, E2, R)
   fit24 <- msmm(Y ~ E1 + E2 | G1 + G2 + G3, data = dat)
-  expect_equal(log(fit24$crrci[1,1]), 0.08, tolerance = 0.01)
+  expect_equal(log(fit24$crrci[1, 1]), 0.08, tolerance = 0.01)
 })
 
 # Example adjusting for a covariate ----
@@ -823,18 +823,18 @@ test_that("Adjusting for covariate", {
   G3 <- rbinom(n, 2, 0.4)
   U <- runif(n)
   C <- runif(n)
-  pX1 <- plogis(0.7*G1 + G2 - G3 + U + C)
+  pX1 <- plogis(0.7 * G1 + G2 - G3 + U + C)
   X1 <- rbinom(n, 1, pX1)
-  pX2 <- plogis(-1 + 0.2*G1 - 0.2*G2 + 0.4*G3 + U + C)
+  pX2 <- plogis(-1 + 0.2 * G1 - 0.2 * G2 + 0.4 * G3 + U + C)
   X2 <- rbinom(n, 1, pX2)
-  pY <- plogis(-2 + psi0*X1 + psi1*X2 + U + C)
+  pY <- plogis(-2 + psi0 * X1 + psi1 * X2 + U + C)
   Y <- rbinom(n, 1, pY)
   E1 <- X1
   E2 <- X2
   R <- Y
   dat <- data.frame(G1, G2, G3, E1, E2, R, C)
   fit25 <- msmm(Y ~ E1 + C | G1 + G2 + G3 + C, data = dat)
-  expect_equal(log(fit25$crrci[1,1]), .173, tolerance = .01)
+  expect_equal(log(fit25$crrci[1, 1]), .173, tolerance = .01)
   fit26 <- msmm(Y ~ E1 + E2 + C | G1 + G2 + G3 + C, data = dat)
-  expect_equal(log(fit26$crrci[1,1]), .184, tolerance = .01)
+  expect_equal(log(fit26$crrci[1, 1]), .184, tolerance = .01)
 })

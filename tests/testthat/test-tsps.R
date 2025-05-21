@@ -5,9 +5,9 @@ set.seed(9)
 n <- 1000
 psi0 <- 0.5
 Z <- rbinom(n, 1, 0.5)
-X <- rbinom(n, 1, 0.7*Z + 0.2*(1 - Z))
-m0 <- plogis(1 + 0.8*X - 0.39*Z)
-Y <- rbinom(n, 1, plogis(psi0*X + log(m0/(1 - m0))))
+X <- rbinom(n, 1, 0.7 * Z + 0.2 * (1 - Z))
+m0 <- plogis(1 + 0.8 * X - 0.39 * Z)
+Y <- rbinom(n, 1, plogis(psi0 * X + log(m0 / (1 - m0))))
 dat <- data.frame(Z, X, Y)
 
 test_that("Single instrument example - identity link", {
@@ -28,7 +28,7 @@ test_that("Single instrument example - identity link", {
   crdse <- 0.04748229 # sqrt(fitIdentGest$vcov)
 
   fit01 <- tsps(Y ~ X | Z, data = dat, link = "identity")
-  expect_equal(fit01$estci[4,1], crd, ignore_attr = "names", tolerance = 1e-5)
+  expect_equal(fit01$estci[4, 1], crd, ignore_attr = "names", tolerance = 1e-5)
 
   expect_s3_class(fit01, "tsps")
 
@@ -44,7 +44,7 @@ test_that("Single instrument example - identity link", {
   xhat <- fitted.values(stage1)
   stage2 <- lm(Y ~ xhat)
   betamanual <- c(betamanual, coef(stage2))
-  expect_equal(fit01$estci[,1], betamanual, ignore_attr = TRUE)
+  expect_equal(fit01$estci[, 1], betamanual, ignore_attr = TRUE)
 })
 
 test_that("Single instrument example - logadd link", {
@@ -65,7 +65,7 @@ test_that("Single instrument example - logadd link", {
   logcrrse <- 0.06035374 # sqrt(fitLogGest$vcov)
 
   fit11 <- tsps(Y ~ X | Z, data = dat, link = "logadd")
-  expect_equal(fit11$estci[4,1], logcrr, tolerance = 0.05, ignore_attr = "names")
+  expect_equal(fit11$estci[4, 1], logcrr, tolerance = 0.05, ignore_attr = "names")
 
   expect_s3_class(fit11, "tsps")
 
@@ -81,7 +81,7 @@ test_that("Single instrument example - logadd link", {
   xhat <- fitted.values(stage1)
   stage2 <- glm(Y ~ xhat, family = poisson) # binomial(link = "log")
   betamanual <- c(betamanual, coef(stage2))
-  expect_equal(fit11$estci[,1], betamanual, ignore_attr = "names")
+  expect_equal(fit11$estci[, 1], betamanual, ignore_attr = "names")
 })
 
 test_that("Single instrument example - logmult link", {
@@ -103,7 +103,7 @@ test_that("Single instrument example - logmult link", {
   logcrrse <- 0.06027666 # sqrt(fitLogGest$vcov)
 
   fit12 <- tsps(Y ~ X | Z, data = dat, link = "logmult")
-  expect_equal(fit12$estci[4,1], logcrr, tolerance = 0.05, ignore_attr = "names")
+  expect_equal(fit12$estci[4, 1], logcrr, tolerance = 0.05, ignore_attr = "names")
 
   expect_s3_class(fit12, "tsps")
 
@@ -120,7 +120,7 @@ test_that("Single instrument example - logmult link", {
   Y[Y == 0] <- 0.001
   stage2 <- glm(Y ~ xhat, family = Gamma(link = "log"))
   betamanual <- c(betamanual, coef(stage2))
-  expect_equal(fit12$estci[,1], betamanual, ignore_attr = "names", tolerance = 1e-3)
+  expect_equal(fit12$estci[, 1], betamanual, ignore_attr = "names", tolerance = 1e-3)
   dat$Y[dat$Y == 0.001] <- 0
 })
 
@@ -142,7 +142,7 @@ test_that("Single instrument example - logit link", {
   logcorse <- 0.2895276 # sqrt(fitLogitGest$vcov)
 
   fit21 <- tsps(Y ~ X | Z, data = dat, link = "logit")
-  expect_equal(fit21$estci[4,1], logcor, tolerance = 0.1, ignore_attr = "names")
+  expect_equal(fit21$estci[4, 1], logcor, tolerance = 0.1, ignore_attr = "names")
 
   expect_s3_class(fit21, "tsps")
 
@@ -158,14 +158,14 @@ test_that("Single instrument example - logit link", {
   xhat <- fitted.values(stage1)
   stage2 <- glm(Y ~ xhat, family = binomial)
   betamanual <- c(betamanual, coef(stage2))
-  expect_equal(fit21$estci[,1], betamanual, ignore_attr = TRUE)
+  expect_equal(fit21$estci[, 1], betamanual, ignore_attr = TRUE)
 })
 
 # Subset of observations ----
 
 test_that("Test subset argument", {
   skip_on_cran()
-  datfifty <- dat[1:50,]
+  datfifty <- dat[1:50, ]
   fitcompare <- tsps(Y ~ X | Z, data = datfifty)
   fitsubset <- tsps(Y ~ X | Z, data = dat, subset = 1:50)
   expect_equal(fitsubset$estci, fitcompare$estci)
@@ -181,9 +181,9 @@ G3 <- rbinom(n, 2, 0.4)
 C1 <- runif(n)
 C2 <- runif(n)
 U <- runif(n)
-pX <- plogis(0.7*G1 + G2 - G3 + U + C1 + C2)
+pX <- plogis(0.7 * G1 + G2 - G3 + U + C1 + C2)
 X <- rbinom(n, 1, pX)
-pY <- plogis(-2 + psi0*X + U + C1 + C2)
+pY <- plogis(-2 + psi0 * X + U + C1 + C2)
 Y <- rbinom(n, 1, pY)
 dat <- data.frame(G1, G2, G3, X, Y, C1, C2)
 
@@ -201,7 +201,7 @@ test_that("Multiple instrument example with covariates - identity link", {
   xhat <- fitted.values(stage1)
   stage2 <- lm(Y ~ xhat + C1 + C2)
   betamanual <- c(betamanual, coef(stage2))
-  expect_equal(fit30$estci[,1], betamanual, ignore_attr = TRUE)
+  expect_equal(fit30$estci[, 1], betamanual, ignore_attr = TRUE)
 })
 
 test_that("Multiple instrument example with covariates - logadd link", {
@@ -218,7 +218,7 @@ test_that("Multiple instrument example with covariates - logadd link", {
   xhat <- fitted.values(stage1)
   stage2 <- glm(Y ~ xhat + C1 + C2, family = poisson)
   betamanual <- c(betamanual, coef(stage2))
-  expect_equal(fit31$estci[,1], betamanual, ignore_attr = TRUE)
+  expect_equal(fit31$estci[, 1], betamanual, ignore_attr = TRUE)
 })
 
 test_that("Multiple instrument example with covariates - logmult link", {
@@ -237,7 +237,7 @@ test_that("Multiple instrument example with covariates - logmult link", {
   Y[Y == 0] <- 0.001
   stage2 <- glm(Y ~ xhat + C1 + C2, family = Gamma(link = "log"), control = list(maxit = 1E2))
   betamanual <- c(betamanual, coef(stage2))
-  expect_equal(fit32$estci[,1], betamanual, tolerance = 0.01, ignore_attr = TRUE)
+  expect_equal(fit32$estci[, 1], betamanual, tolerance = 0.01, ignore_attr = TRUE)
   dat$Y[dat$Y == 0.001] <- 0
 })
 
@@ -255,5 +255,5 @@ test_that("Multiple instrument example with covariates - logit link", {
   xhat <- fitted.values(stage1)
   stage2 <- glm(Y ~ xhat + C1 + C2, family = binomial)
   betamanual <- c(betamanual, coef(stage2))
-  expect_equal(fit33$estci[,1], betamanual, ignore_attr = TRUE)
+  expect_equal(fit33$estci[, 1], betamanual, ignore_attr = TRUE)
 })
