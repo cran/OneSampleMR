@@ -343,19 +343,46 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(haven)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(ivreg)</span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(lfe)</span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co">#&gt; Loading required package: Matrix</span></span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="fu">library</span>(OneSampleMR)</span></code></pre></div>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(AER)</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co">#&gt; Loading required package: car</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co">#&gt; Loading required package: carData</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="co">#&gt; Loading required package: lmtest</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co">#&gt; Loading required package: zoo</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="co">#&gt; Attaching package: &#39;zoo&#39;</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="co">#&gt; The following objects are masked from &#39;package:base&#39;:</span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="co">#&gt;     as.Date, as.Date.numeric</span></span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="co">#&gt; Loading required package: sandwich</span></span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a><span class="co">#&gt; Loading required package: survival</span></span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a><span class="co">#&gt; Attaching package: &#39;AER&#39;</span></span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a><span class="co">#&gt; The following objects are masked from &#39;package:ivreg&#39;:</span></span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a><span class="co">#&gt;     ivreg, ivreg.fit</span></span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a><span class="fu">library</span>(estimatr)</span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a><span class="fu">library</span>(fixest)</span>
+<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a><span class="fu">library</span>(lfe)</span>
+<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a><span class="co">#&gt; Loading required package: Matrix</span></span>
+<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a><span class="co">#&gt; Attaching package: &#39;lfe&#39;</span></span>
+<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a><span class="co">#&gt; The following object is masked from &#39;package:fixest&#39;:</span></span>
+<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a><span class="co">#&gt;     fepois</span></span>
+<span id="cb1-29"><a href="#cb1-29" tabindex="-1"></a><span class="co">#&gt; The following object is masked from &#39;package:lmtest&#39;:</span></span>
+<span id="cb1-30"><a href="#cb1-30" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb1-31"><a href="#cb1-31" tabindex="-1"></a><span class="co">#&gt;     waldtest</span></span>
+<span id="cb1-32"><a href="#cb1-32" tabindex="-1"></a><span class="fu">library</span>(OneSampleMR)</span></code></pre></div>
 <div id="run-fsw-on-ivreg-model-object" class="section level2">
 <h2>Run fsw() on ivreg() model object</h2>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>url <span class="ot">&lt;-</span> <span class="st">&quot;http://fmwww.bc.edu/ec-p/data/wooldridge/mroz.dta&quot;</span></span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>dat <span class="ot">&lt;-</span> haven<span class="sc">::</span><span class="fu">read_dta</span>(url)</span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">ivreg</span>(lwage <span class="sc">~</span> educ <span class="sc">+</span> exper <span class="sc">|</span> age <span class="sc">+</span> kidslt6 <span class="sc">+</span> kidsge6, <span class="at">data =</span> dat)</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>mod <span class="ot">&lt;-</span> ivreg<span class="sc">::</span><span class="fu">ivreg</span>(lwage <span class="sc">~</span> educ <span class="sc">+</span> exper <span class="sc">|</span> age <span class="sc">+</span> kidslt6 <span class="sc">+</span> kidsge6, <span class="at">data =</span> dat)</span>
 <span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="fu">summary</span>(mod)</span>
 <span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt; Call:</span></span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt; ivreg(formula = lwage ~ educ + exper | age + kidslt6 + kidsge6, </span></span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt;     data = dat)</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt; ivreg::ivreg(formula = lwage ~ educ + exper | age + kidslt6 + </span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt;     kidsge6, data = dat)</span></span>
 <span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt; Residuals:</span></span>
 <span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co">#&gt;      Min       1Q   Median       3Q      Max </span></span>
@@ -366,85 +393,171 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co">#&gt; (Intercept) -0.360182   1.033416  -0.349    0.728  </span></span>
 <span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co">#&gt; educ         0.105836   0.080982   1.307    0.192  </span></span>
 <span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="co">#&gt; exper        0.016153   0.007595   2.127    0.034 *</span></span>
-<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co">#&gt; Diagnostic tests:</span></span>
-<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt;                          df1 df2 statistic p-value    </span></span>
-<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt; Weak instruments (educ)    3 424     4.466 0.00421 ** </span></span>
-<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co">#&gt; Weak instruments (exper)   3 424    55.044 &lt; 2e-16 ***</span></span>
-<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt; Wu-Hausman                 2 423     0.004 0.99609    </span></span>
-<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt; Sargan                     1  NA     1.168 0.27976    </span></span>
-<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt; ---</span></span>
-<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="co">#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="co">#&gt; ---</span></span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co">#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt; Residual standard error: 0.669 on 425 degrees of freedom</span></span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co">#&gt; Multiple R-Squared: 0.1482,  Adjusted R-squared: 0.1442 </span></span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt; Wald test: 3.034 on 2 and 425 DF,  p-value: 0.04917</span></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="fu">fsw</span>(mod)</span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="co">#&gt; Model sample size:  428 </span></span>
 <span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a><span class="co">#&gt; Residual standard error: 0.669 on 425 degrees of freedom</span></span>
-<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a><span class="co">#&gt; Multiple R-Squared: 0.1482,  Adjusted R-squared: 0.1442 </span></span>
-<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a><span class="co">#&gt; Wald test: 3.034 on 2 and 425 DF,  p-value: 0.04917</span></span>
-<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a><span class="fu">fsw</span>(mod)</span>
-<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a><span class="co">#&gt; Model sample size:  428 </span></span>
-<span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a><span class="co">#&gt; Sanderson-Windmeijer conditional F-statistics for first stage model:</span></span>
-<span id="cb2-37"><a href="#cb2-37" tabindex="-1"></a><span class="co">#&gt;        F value d.f. Residual d.f.   Pr(&gt;F)    </span></span>
-<span id="cb2-38"><a href="#cb2-38" tabindex="-1"></a><span class="co">#&gt; educ   6.69425    2           424 0.001373 ** </span></span>
-<span id="cb2-39"><a href="#cb2-39" tabindex="-1"></a><span class="co">#&gt; exper 81.81237    2           424  &lt; 2e-16 ***</span></span>
-<span id="cb2-40"><a href="#cb2-40" tabindex="-1"></a><span class="co">#&gt; ---</span></span>
-<span id="cb2-41"><a href="#cb2-41" tabindex="-1"></a><span class="co">#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span></code></pre></div>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a><span class="co">#&gt; Sanderson-Windmeijer conditional F-statistics for first stage model:</span></span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a><span class="co">#&gt;        F value d.f. Residual d.f.   Pr(&gt;F)    </span></span>
+<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a><span class="co">#&gt; educ   6.69425    2           424 0.001373 ** </span></span>
+<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a><span class="co">#&gt; exper 81.81237    2           424  &lt; 2e-16 ***</span></span>
+<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a><span class="co">#&gt; ---</span></span>
+<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a><span class="co">#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span></code></pre></div>
 </div>
-<div id="comparison-with-f-statistic-from-lfe-package" class="section level2">
-<h2>Comparison with F-statistic from lfe package</h2>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>modst2 <span class="ot">&lt;-</span> <span class="fu">felm</span>(lwage <span class="sc">~</span> <span class="dv">1</span> <span class="sc">|</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>                 <span class="dv">0</span> <span class="sc">|</span> (educ <span class="sc">|</span> exper <span class="sc">~</span> age <span class="sc">+</span> kidslt6 <span class="sc">+</span> kidsge6), <span class="at">data =</span> dat)</span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="fu">summary</span>(modst2)</span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; Call:</span></span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt;    felm(formula = lwage ~ 1 | 0 | (educ | exper ~ age + kidslt6 +      kidsge6), data = dat) </span></span>
+<div id="run-fsw-on-aerivreg-model-object" class="section level2">
+<h2>Run fsw() on AER::ivreg() model object</h2>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>mod2 <span class="ot">&lt;-</span> AER<span class="sc">::</span><span class="fu">ivreg</span>(lwage <span class="sc">~</span> educ <span class="sc">+</span> exper <span class="sc">|</span> age <span class="sc">+</span> kidslt6 <span class="sc">+</span> kidsge6, <span class="at">data =</span> dat)</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">summary</span>(mod2)</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt; Call:</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; AER::ivreg(formula = lwage ~ educ + exper | age + kidslt6 + kidsge6, </span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt;     data = dat)</span></span>
 <span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt; Residuals:</span></span>
 <span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co">#&gt;      Min       1Q   Median       3Q      Max </span></span>
 <span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="co">#&gt; -3.04973 -0.30711  0.05531  0.38952  2.27672 </span></span>
 <span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt; Coefficients:</span></span>
-<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt;               Estimate Std. Error t value Pr(&gt;|t|)  </span></span>
-<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="co">#&gt; (Intercept)  -0.360182   1.033416  -0.349    0.728  </span></span>
-<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="co">#&gt; `educ(fit)`   0.105836   0.080982   1.307    0.192  </span></span>
-<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co">#&gt; `exper(fit)`  0.016153   0.007595   2.127    0.034 *</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt;              Estimate Std. Error t value Pr(&gt;|t|)  </span></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="co">#&gt; (Intercept) -0.360182   1.033416  -0.349    0.728  </span></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="co">#&gt; educ         0.105836   0.080982   1.307    0.192  </span></span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co">#&gt; exper        0.016153   0.007595   2.127    0.034 *</span></span>
 <span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">#&gt; ---</span></span>
 <span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="co">#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
 <span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="co">#&gt; Residual standard error: 0.669 on 425 degrees of freedom</span></span>
-<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a><span class="co">#&gt;   (325 observations deleted due to missingness)</span></span>
-<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a><span class="co">#&gt; Multiple R-squared(full model): 0.1482   Adjusted R-squared: 0.1442 </span></span>
-<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a><span class="co">#&gt; Multiple R-squared(proj model): 0.1482   Adjusted R-squared: 0.1442 </span></span>
-<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a><span class="co">#&gt; F-statistic(full model):3.034 on 2 and 425 DF, p-value: 0.04917 </span></span>
-<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a><span class="co">#&gt; F-statistic(proj model): 3.034 on 2 and 425 DF, p-value: 0.04917 </span></span>
-<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a><span class="co">#&gt; F-statistic(endog. vars):3.034 on 2 and 425 DF, p-value: 0.04917</span></span>
-<span id="cb3-27"><a href="#cb3-27" tabindex="-1"></a><span class="fu">t</span>(<span class="fu">sapply</span>(modst2<span class="sc">$</span>stage1<span class="sc">$</span>lhs, <span class="cf">function</span>(lh) {</span>
-<span id="cb3-28"><a href="#cb3-28" tabindex="-1"></a>  <span class="fu">waldtest</span>(modst2<span class="sc">$</span>stage1, <span class="sc">~</span> age <span class="sc">|</span> kidslt6 <span class="sc">|</span> kidsge6, <span class="at">lhs =</span> lh)</span>
-<span id="cb3-29"><a href="#cb3-29" tabindex="-1"></a>}))</span>
-<span id="cb3-30"><a href="#cb3-30" tabindex="-1"></a><span class="co">#&gt;                  p      chi2 df1          p.F         F df2</span></span>
-<span id="cb3-31"><a href="#cb3-31" tabindex="-1"></a><span class="co">#&gt; educ  3.849465e-03  13.39851   3 4.210326e-03  4.466172 424</span></span>
-<span id="cb3-32"><a href="#cb3-32" tabindex="-1"></a><span class="co">#&gt; exper 1.429780e-35 165.13309   3 4.561549e-30 55.044363 424</span></span>
-<span id="cb3-33"><a href="#cb3-33" tabindex="-1"></a><span class="fu">condfstat</span>(modst2, <span class="at">quantiles =</span> <span class="fu">c</span>(<span class="fl">0.025</span>, <span class="fl">0.975</span>))</span>
-<span id="cb3-34"><a href="#cb3-34" tabindex="-1"></a><span class="co">#&gt;           educ    exper</span></span>
-<span id="cb3-35"><a href="#cb3-35" tabindex="-1"></a><span class="co">#&gt; iid F 6.710039 82.00533</span></span>
-<span id="cb3-36"><a href="#cb3-36" tabindex="-1"></a><span class="co">#&gt; attr(,&quot;df1&quot;)</span></span>
-<span id="cb3-37"><a href="#cb3-37" tabindex="-1"></a><span class="co">#&gt; [1] 2</span></span>
-<span id="cb3-38"><a href="#cb3-38" tabindex="-1"></a><span class="co">#&gt; attr(,&quot;quantiles&quot;)</span></span>
-<span id="cb3-39"><a href="#cb3-39" tabindex="-1"></a><span class="co">#&gt;               2.5%      97.5%</span></span>
-<span id="cb3-40"><a href="#cb3-40" tabindex="-1"></a><span class="co">#&gt; educ  -0.173031596 0.23636349</span></span>
-<span id="cb3-41"><a href="#cb3-41" tabindex="-1"></a><span class="co">#&gt; exper -0.002652574 0.03457952</span></span>
-<span id="cb3-42"><a href="#cb3-42" tabindex="-1"></a><span class="co">#&gt; attr(,&quot;quantiles&quot;)attr(,&quot;q&quot;)</span></span>
-<span id="cb3-43"><a href="#cb3-43" tabindex="-1"></a><span class="co">#&gt; [1] 0.025 0.975</span></span>
-<span id="cb3-44"><a href="#cb3-44" tabindex="-1"></a><span class="co">#&gt; attr(,&quot;quantiles&quot;)attr(,&quot;samples&quot;)</span></span>
-<span id="cb3-45"><a href="#cb3-45" tabindex="-1"></a><span class="co">#&gt; [1] 100</span></span></code></pre></div>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a><span class="co">#&gt; Multiple R-Squared: 0.1482,  Adjusted R-squared: 0.1442 </span></span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a><span class="co">#&gt; Wald test: 3.034 on 2 and 425 DF,  p-value: 0.04917</span></span>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a><span class="fu">fsw</span>(mod2)</span>
+<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a><span class="co">#&gt; Model sample size:  428 </span></span>
+<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-27"><a href="#cb3-27" tabindex="-1"></a><span class="co">#&gt; Sanderson-Windmeijer conditional F-statistics for first stage model:</span></span>
+<span id="cb3-28"><a href="#cb3-28" tabindex="-1"></a><span class="co">#&gt;        F value d.f. Residual d.f.   Pr(&gt;F)    </span></span>
+<span id="cb3-29"><a href="#cb3-29" tabindex="-1"></a><span class="co">#&gt; educ   6.69425    2           424 0.001373 ** </span></span>
+<span id="cb3-30"><a href="#cb3-30" tabindex="-1"></a><span class="co">#&gt; exper 81.81237    2           424  &lt; 2e-16 ***</span></span>
+<span id="cb3-31"><a href="#cb3-31" tabindex="-1"></a><span class="co">#&gt; ---</span></span>
+<span id="cb3-32"><a href="#cb3-32" tabindex="-1"></a><span class="co">#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span></code></pre></div>
+</div>
+<div id="run-fsw-on-estimatriv_robust-model-object" class="section level2">
+<h2>Run fsw() on estimatr::iv_robust() model object</h2>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">library</span>(estimatr)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>mod3 <span class="ot">&lt;-</span> <span class="fu">iv_robust</span>(lwage <span class="sc">~</span> educ <span class="sc">+</span> exper <span class="sc">|</span> age <span class="sc">+</span> kidslt6 <span class="sc">+</span> kidsge6, <span class="at">data =</span> dat, <span class="at">se_type =</span> <span class="st">&quot;classical&quot;</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="fu">tidy</span>(mod3)</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt;          term    estimate   std.error  statistic    p.value     conf.low</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt; 1 (Intercept) -0.36018214 1.033415610 -0.3485356 0.72761056 -2.391424035</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt; 2        educ  0.10583608 0.080981803  1.3069119 0.19194932 -0.053338627</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt; 3       exper  0.01615273 0.007594673  2.1268499 0.03400801  0.001224933</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt;    conf.high  df outcome</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt; 1 1.67105975 425   lwage</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt; 2 0.26501080 425   lwage</span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#&gt; 3 0.03108053 425   lwage</span></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="fu">fsw</span>(mod3)</span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="co">#&gt; Model sample size:  428 </span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="co">#&gt; Sanderson-Windmeijer conditional F-statistics for first stage model:</span></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co">#&gt;        F value d.f. Residual d.f.   Pr(&gt;F)    </span></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="co">#&gt; educ   6.69425    2           424 0.001373 ** </span></span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="co">#&gt; exper 81.81237    2           424  &lt; 2e-16 ***</span></span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a><span class="co">#&gt; ---</span></span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a><span class="co">#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span></code></pre></div>
+</div>
+<div id="run-fsw-on-fixestfeols-model-object" class="section level2">
+<h2>Run fsw() on fixest::feols() model object</h2>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">library</span>(fixest)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>mod4 <span class="ot">&lt;-</span> <span class="fu">feols</span>(lwage <span class="sc">~</span> <span class="dv">1</span> <span class="sc">|</span> educ <span class="sc">+</span> exper <span class="sc">~</span> age <span class="sc">+</span> kidslt6 <span class="sc">+</span> kidsge6, <span class="at">data =</span> dat)</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; </span><span class="al">NOTE</span><span class="co">: 325 observations removed because of NA values (LHS: 325).</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="fu">summary</span>(mod4)</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; TSLS estimation - Dep. Var.: lwage</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt;                   Endo.    : educ, exper</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt;                   Instr.   : age, kidslt6, kidsge6</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; Second stage: Dep. Var.: lwage</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; Observations: 428</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt; Standard-errors: IID </span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt;              Estimate Std. Error   t value Pr(&gt;|t|)    </span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt; (Intercept) -0.360182   1.033416 -0.348536 0.727611    </span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">#&gt; fit_educ     0.105836   0.080982  1.306912 0.191949    </span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co">#&gt; fit_exper    0.016153   0.007595  2.126850 0.034008 *  </span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co">#&gt; ---</span></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co">#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#&gt; RMSE: 0.666683   Adj. R2: 0.007512</span></span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="co">#&gt; F-test (1st stage), educ : stat =  4.46617, p = 0.00421 , on 3 and 424 DoF.</span></span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="co">#&gt; F-test (1st stage), exper: stat = 55.04436, p &lt; 2.2e-16 , on 3 and 424 DoF.</span></span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co">#&gt;                Wu-Hausman: stat =  0.00392, p = 0.996088, on 2 and 423 DoF.</span></span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="co">#&gt;                    Sargan: stat =  1.16824, p = 0.279764, on 1 DoF.</span></span>
+<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="fu">fsw</span>(mod4)</span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a><span class="co">#&gt; Model sample size:  428 </span></span>
+<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a><span class="co">#&gt; Sanderson-Windmeijer conditional F-statistics for first stage model:</span></span>
+<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a><span class="co">#&gt;        F value d.f. Residual d.f.   Pr(&gt;F)    </span></span>
+<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a><span class="co">#&gt; educ   6.69425    2           424 0.001373 ** </span></span>
+<span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a><span class="co">#&gt; exper 81.81237    2           424  &lt; 2e-16 ***</span></span>
+<span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a><span class="co">#&gt; ---</span></span>
+<span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a><span class="co">#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span></code></pre></div>
+</div>
+<div id="comparison-with-f-statistic-from-lfe-package" class="section level2">
+<h2>Comparison with F-statistic from lfe package</h2>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>modst2 <span class="ot">&lt;-</span> <span class="fu">felm</span>(lwage <span class="sc">~</span> <span class="dv">1</span> <span class="sc">|</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>                 <span class="dv">0</span> <span class="sc">|</span> (educ <span class="sc">|</span> exper <span class="sc">~</span> age <span class="sc">+</span> kidslt6 <span class="sc">+</span> kidsge6), <span class="at">data =</span> dat)</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="fu">summary</span>(modst2)</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; Call:</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt;    felm(formula = lwage ~ 1 | 0 | (educ | exper ~ age + kidslt6 +      kidsge6), data = dat) </span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; Residuals:</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt;      Min       1Q   Median       3Q      Max </span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; -3.04973 -0.30711  0.05531  0.38952  2.27672 </span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt; Coefficients:</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt;               Estimate Std. Error t value Pr(&gt;|t|)  </span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt; (Intercept)  -0.360182   1.033416  -0.349    0.728  </span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt; `educ(fit)`   0.105836   0.080982   1.307    0.192  </span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt; `exper(fit)`  0.016153   0.007595   2.127    0.034 *</span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt; ---</span></span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="co">#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt; Residual standard error: 0.669 on 425 degrees of freedom</span></span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt;   (325 observations deleted due to missingness)</span></span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="co">#&gt; Multiple R-squared(full model): 0.1482   Adjusted R-squared: 0.1442 </span></span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a><span class="co">#&gt; Multiple R-squared(proj model): 0.1482   Adjusted R-squared: 0.1442 </span></span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a><span class="co">#&gt; F-statistic(full model):3.034 on 2 and 425 DF, p-value: 0.04917 </span></span>
+<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a><span class="co">#&gt; F-statistic(proj model): 3.034 on 2 and 425 DF, p-value: 0.04917 </span></span>
+<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a><span class="co">#&gt; F-statistic(endog. vars):3.034 on 2 and 425 DF, p-value: 0.04917</span></span>
+<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a><span class="fu">t</span>(<span class="fu">sapply</span>(modst2<span class="sc">$</span>stage1<span class="sc">$</span>lhs, <span class="cf">function</span>(lh) {</span>
+<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a>  <span class="fu">waldtest</span>(modst2<span class="sc">$</span>stage1, <span class="sc">~</span> age <span class="sc">|</span> kidslt6 <span class="sc">|</span> kidsge6, <span class="at">lhs =</span> lh)</span>
+<span id="cb6-29"><a href="#cb6-29" tabindex="-1"></a>}))</span>
+<span id="cb6-30"><a href="#cb6-30" tabindex="-1"></a><span class="co">#&gt;                  p      chi2 df1          p.F         F df2</span></span>
+<span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a><span class="co">#&gt; educ  3.849465e-03  13.39851   3 4.210326e-03  4.466172 424</span></span>
+<span id="cb6-32"><a href="#cb6-32" tabindex="-1"></a><span class="co">#&gt; exper 1.429780e-35 165.13309   3 4.561549e-30 55.044363 424</span></span>
+<span id="cb6-33"><a href="#cb6-33" tabindex="-1"></a><span class="fu">condfstat</span>(modst2, <span class="at">quantiles =</span> <span class="fu">c</span>(<span class="fl">0.025</span>, <span class="fl">0.975</span>))</span>
+<span id="cb6-34"><a href="#cb6-34" tabindex="-1"></a><span class="co">#&gt;           educ    exper</span></span>
+<span id="cb6-35"><a href="#cb6-35" tabindex="-1"></a><span class="co">#&gt; iid F 6.710039 82.00533</span></span>
+<span id="cb6-36"><a href="#cb6-36" tabindex="-1"></a><span class="co">#&gt; attr(,&quot;df1&quot;)</span></span>
+<span id="cb6-37"><a href="#cb6-37" tabindex="-1"></a><span class="co">#&gt; [1] 2</span></span>
+<span id="cb6-38"><a href="#cb6-38" tabindex="-1"></a><span class="co">#&gt; attr(,&quot;quantiles&quot;)</span></span>
+<span id="cb6-39"><a href="#cb6-39" tabindex="-1"></a><span class="co">#&gt;               2.5%      97.5%</span></span>
+<span id="cb6-40"><a href="#cb6-40" tabindex="-1"></a><span class="co">#&gt; educ  -0.173031596 0.23636349</span></span>
+<span id="cb6-41"><a href="#cb6-41" tabindex="-1"></a><span class="co">#&gt; exper -0.002652574 0.03457952</span></span>
+<span id="cb6-42"><a href="#cb6-42" tabindex="-1"></a><span class="co">#&gt; attr(,&quot;quantiles&quot;)attr(,&quot;q&quot;)</span></span>
+<span id="cb6-43"><a href="#cb6-43" tabindex="-1"></a><span class="co">#&gt; [1] 0.025 0.975</span></span>
+<span id="cb6-44"><a href="#cb6-44" tabindex="-1"></a><span class="co">#&gt; attr(,&quot;quantiles&quot;)attr(,&quot;samples&quot;)</span></span>
+<span id="cb6-45"><a href="#cb6-45" tabindex="-1"></a><span class="co">#&gt; [1] 100</span></span></code></pre></div>
 </div>
 <div id="comparison-with-output-from-ivreg2" class="section level2">
 <h2>Comparison with output from ivreg2</h2>
 <p>Code run using Stata version 16.1.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode stata"><code class="sourceCode stata"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="kw">use</span> http:<span class="co">//fmwww.bc.edu/ec-p/data/wooldridge/mroz.dta, clear</span></span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a></span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">// ssc install ivreg2</span></span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>ivreg2 lwage (educ exper = age kidslt6 kidsge6) <span class="kw">if</span> !<span class="fu">missing</span>(lwage, educ, exper, age, kidslt6, kidsge6), first</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode stata"><code class="sourceCode stata"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="kw">use</span> http:<span class="co">//fmwww.bc.edu/ec-p/data/wooldridge/mroz.dta, clear</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co">// ssc install ivreg2</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>ivreg2 lwage (educ exper = age kidslt6 kidsge6) <span class="kw">if</span> !<span class="fu">missing</span>(lwage, educ, exper, age, kidslt6, kidsge6), first</span></code></pre></div>
 <pre><code>First-stage regressions
 -----------------------
 

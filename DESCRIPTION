@@ -1,14 +1,16 @@
 Package: OneSampleMR
 Title: One Sample Mendelian Randomization and Instrumental Variable
         Analyses
-Version: 0.1.6
+Version: 0.1.7
 Authors@R: c(
     person("Tom", "Palmer", , "remlapmot@hotmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-4655-4511")),
     person("Wes", "Spiller", , "wes.spiller@bristol.ac.uk", role = "aut",
            comment = c(ORCID = "0000-0002-8169-5531")),
     person("Eleanor", "Sanderson", , "eleanor.sanderson@bristol.ac.uk", role = "aut",
-           comment = c(ORCID = "0000-0001-5188-5775"))
+           comment = c(ORCID = "0000-0001-5188-5775")),
+    person("Nicolai", "Vitt", , "nicolai.vitt@bristol.ac.uk", role = "aut",
+           comment = c(ORCID = "0000-0002-5988-9372"))
   )
 Description: Useful functions for one-sample (individual level data)
     Mendelian randomization and instrumental variable analyses. The
@@ -25,17 +27,19 @@ URL: https://github.com/remlapmot/OneSampleMR,
 BugReports: https://github.com/remlapmot/OneSampleMR/issues/
 Depends: R (>= 4.3)
 Imports: Formula, gmm, ivreg (>= 0.6-5), lmtest, msm, rlang (>= 1.0.0)
-Suggests: haven, knitr, lfe, rmarkdown, testthat (>= 3.0.0)
+Suggests: AER, estimatr, fixest, haven, knitr, lfe, rmarkdown, testthat
+        (>= 3.0.0)
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Encoding: UTF-8
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 NeedsCompilation: no
-Packaged: 2025-05-21 10:07:24 UTC; tom
+Packaged: 2026-03-09 15:01:32 UTC; tom
 Author: Tom Palmer [aut, cre] (ORCID: <https://orcid.org/0000-0003-4655-4511>),
   Wes Spiller [aut] (ORCID: <https://orcid.org/0000-0002-8169-5531>),
   Eleanor Sanderson [aut] (ORCID:
-    <https://orcid.org/0000-0001-5188-5775>)
+    <https://orcid.org/0000-0001-5188-5775>),
+  Nicolai Vitt [aut] (ORCID: <https://orcid.org/0000-0002-5988-9372>)
 Maintainer: Tom Palmer <remlapmot@hotmail.com>
 Repository: CRAN
-Date/Publication: 2025-05-21 10:30:02 UTC
+Date/Publication: 2026-03-09 15:20:12 UTC
