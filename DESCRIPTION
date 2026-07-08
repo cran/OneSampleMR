@@ -1,7 +1,7 @@
 Package: OneSampleMR
 Title: One Sample Mendelian Randomization and Instrumental Variable
         Analyses
-Version: 0.1.7
+Version: 0.1.8
 Authors@R: c(
     person("Tom", "Palmer", , "remlapmot@hotmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-4655-4511")),
@@ -30,11 +30,12 @@ Imports: Formula, gmm, ivreg (>= 0.6-5), lmtest, msm, rlang (>= 1.0.0)
 Suggests: AER, estimatr, fixest, haven, knitr, lfe, rmarkdown, testthat
         (>= 3.0.0)
 VignetteBuilder: knitr
+Config/roxygen2/markdown: TRUE
+Config/roxygen2/version: 8.0.0
 Config/testthat/edition: 3
 Encoding: UTF-8
-RoxygenNote: 7.3.3
 NeedsCompilation: no
-Packaged: 2026-03-09 15:01:32 UTC; tom
+Packaged: 2026-07-08 12:30:37 UTC; eptmp
 Author: Tom Palmer [aut, cre] (ORCID: <https://orcid.org/0000-0003-4655-4511>),
   Wes Spiller [aut] (ORCID: <https://orcid.org/0000-0002-8169-5531>),
   Eleanor Sanderson [aut] (ORCID:
@@ -42,4 +43,4 @@ Author: Tom Palmer [aut, cre] (ORCID: <https://orcid.org/0000-0003-4655-4511>),
   Nicolai Vitt [aut] (ORCID: <https://orcid.org/0000-0002-5988-9372>)
 Maintainer: Tom Palmer <remlapmot@hotmail.com>
 Repository: CRAN
-Date/Publication: 2026-03-09 15:20:12 UTC
+Date/Publication: 2026-07-08 13:00:02 UTC

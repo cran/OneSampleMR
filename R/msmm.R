@@ -49,7 +49,7 @@
 #' @return An object of class `"msmm"`. A list with the following items:
 #'
 #' \item{fit}{The object from either a [gmm::gmm()] or [ivreg::ivreg()] fit.}
-#' \item{crrci}{The causal risk ratio/s and it corresponding 95% confidence
+#' \item{crrci}{The causal risk ratio/s and its corresponding 95% confidence
 #' interval limits.}
 #' \item{estmethod}{The specified `estmethod`.}
 #'
@@ -91,7 +91,7 @@
 #' \doi{10.1093/aje/kwr026}
 #'
 #' Robins JM. The analysis of randomised and
-#' nonrandomised AIDS treatment trials using a new approach to
+#' non-randomised AIDS treatment trials using a new approach to
 #' causal inference in longitudinal studies.
 #' In Health Service Research Methodology: A Focus on AIDS
 #' (L. Sechrest, H. Freeman and A. Mulley, eds.). 1989. 113–159.
@@ -160,7 +160,6 @@ msmm <- function(
 
   # code from beginning for ivreg::ivreg()
   ## set up model.frame() call
-  cl <- match.call()
   if (missing(data)) {
     data <- environment(formula)
   }
@@ -175,8 +174,6 @@ msmm <- function(
   ## handle instruments for backward compatibility
   if (!missing(instruments)) {
     formula <- Formula::as.Formula(formula, instruments)
-    cl$instruments <- NULL
-    cl$formula <- formula(formula)
   } else {
     formula <- Formula::as.Formula(formula)
   }
@@ -207,7 +204,6 @@ msmm <- function(
   mf <- eval(mf, parent.frame())
   ## extract response, terms, model matrices
   Y <- stats::model.response(mf, "numeric")
-  mt <- stats::terms(formula, data = data)
   mtX <- stats::terms(formula, data = data, rhs = 1)
   X <- stats::model.matrix(mtX, mf, contrasts)
   if (length(formula)[2] < 2L) {
@@ -231,14 +227,16 @@ msmm <- function(
   estmethod <- match.arg(estmethod, c("gmm", "gmmalt", "tsls", "tslsalt"))
 
   # check y greater than or equal to 0
-  ygr0chck <- sum(Y < 0)
-  if (as.logical(ygr0chck)) {
-    stop("All of the values of the outcome must be greater than 0.")
+  if (any(Y < 0)) {
+    stop(
+      "All of the values of the outcome must be greater than or equal to 0."
+    )
   }
 
   # check y all integers
+  # (all.equal() returns a character string, not FALSE, on mismatch)
   yintchck <- all.equal(Y, as.integer(Y), check.attributes = FALSE)
-  if (!yintchck) {
+  if (!isTRUE(yintchck)) {
     stop("All of the values of the outcome must be integers.")
   }
 
@@ -312,10 +310,11 @@ msmm_tsls <- function(x, y, z) {
   logcrrse <- msm::deltamethod(~ log(-1 / x2), beta, estvar)
 
   # crr with 95% CI
+  z975 <- stats::qnorm(0.975)
   crrci <- unname(c(
     -1 / beta[2],
-    exp(logcrr - 1.96 * logcrrse),
-    exp(logcrr + 1.96 * logcrrse)
+    exp(logcrr - z975 * logcrrse),
+    exp(logcrr + z975 * logcrrse)
   ))
 
   # baseline risk
@@ -353,10 +352,11 @@ msmm_tsls_alt <- function(x, y, z) {
   logcrrse <- msm::deltamethod(~ log(-1 * x2), beta, estvar)
 
   # crr with 95% CI
+  z975 <- stats::qnorm(0.975)
   crrci <- unname(c(
     -1 * beta[2],
-    exp(logcrr - 1.96 * logcrrse),
-    exp(logcrr + 1.96 * logcrrse)
+    exp(logcrr - z975 * logcrrse),
+    exp(logcrr + z975 * logcrrse)
   ))
 
   # list of results to return
@@ -371,24 +371,20 @@ msmm_tsls_alt <- function(x, y, z) {
 
 msmmMoments <- function(theta, x) {
   # extract variables from x
-  Y <- as.matrix(x[, "y"])
+  # (positionally: the outcome is the first column of the data.frame built
+  # in msmm_gmm(), even if an exposure or instrument is also named "y")
+  Y <- as.matrix(x[, 1L])
   xcolstop <- length(theta)
   X <- as.matrix(x[, 2:xcolstop])
   zcolstart <- 1 + length(theta) # 1 is y, length(theta) is nX
   zcolstop <- ncol(x)
   Z <- as.matrix(x[, zcolstart:zcolstop])
-  nZ <- zcolstop - zcolstart + 1
-  nZp1 <- nZ + 1
 
   linearpredictor <- -1 * X %*% as.matrix(theta[-1])
 
-  # moments
-  moments <- matrix(nrow = nrow(x), ncol = nZp1, NA)
-  moments[, 1] <- (Y * exp(linearpredictor) - theta[1])
-  for (i in 1:nZ) {
-    j <- i + 1
-    moments[, j] <- (Y * exp(linearpredictor) - theta[1]) * Z[, i]
-  }
+  # moments: the base moment multiplied by a constant and each instrument
+  basemoment <- as.vector(Y * exp(linearpredictor)) - theta[1]
+  moments <- unname(basemoment * cbind(1, Z))
   return(moments)
 }
 
@@ -428,24 +424,20 @@ msmm_gmm <- function(x, y, z, xnames, t0) {
 
 msmmAltMoments <- function(theta, x) {
   # extract variables from x
-  Y <- as.matrix(x[, "y"])
+  # (positionally: the outcome is the first column of the data.frame built
+  # in msmm_gmm_alt(), even if an exposure or instrument is also named "y")
+  Y <- as.matrix(x[, 1L])
   xcolstop <- length(theta)
   X <- cbind(rep(1, nrow(x)), as.matrix(x[, 2:xcolstop]))
   zcolstart <- 1 + length(theta) # 1 is y, length(theta) is nX
   zcolstop <- ncol(x)
   Z <- as.matrix(x[, zcolstart:zcolstop])
-  nZ <- zcolstop - zcolstart + 1
-  nZp1 <- nZ + 1
 
   linearpredictor <- -1 * X %*% as.matrix(theta)
 
-  # moments
-  moments <- matrix(nrow = nrow(x), ncol = nZp1, NA)
-  moments[, 1] <- (Y * exp(linearpredictor) - 1)
-  for (i in 1:nZ) {
-    j <- i + 1
-    moments[, j] <- (Y * exp(linearpredictor) - 1) * Z[, i]
-  }
+  # moments: the base moment multiplied by a constant and each instrument
+  basemoment <- as.vector(Y * exp(linearpredictor)) - 1
+  moments <- unname(basemoment * cbind(1, Z))
   return(moments)
 }
 
@@ -479,6 +471,7 @@ msmm_gmm_alt <- function(x, y, z, xnames, t0) {
   ey0ci <- expests[1, ]
 
   reslist <- list(fit = fit, crrci = crrci, ey0ci = ey0ci, estmethod = "gmmalt")
+  return(reslist)
 }
 
 #' Summarizing MSMM Fits

@@ -298,3 +298,80 @@ test_that("Multiple instrument example with covariates - logit link", {
   betamanual <- c(betamanual, coef(stage2))
   expect_equal(fit33$estci[, 1], betamanual, ignore_attr = TRUE)
 })
+
+test_that("Results are invariant to the order of terms in the formula", {
+  skip_on_cran()
+
+  # exposure/instruments first, covariates first, and interleaved
+  fit40 <- tsps(Y ~ X + C1 + C2 | G1 + G2 + G3 + C1 + C2, data = dat)
+  fit41 <- tsps(Y ~ C1 + C2 + X | C1 + C2 + G1 + G2 + G3, data = dat)
+  fit42 <- tsps(Y ~ C1 + X + C2 | G1 + C1 + G2 + C2 + G3, data = dat)
+
+  # manual fit for comparison
+  stage1 <- lm(X ~ G1 + G2 + G3 + C1 + C2, data = dat)
+  betamanual <- coef(stage1)
+  xhat <- fitted.values(stage1)
+  stage2 <- lm(Y ~ xhat + C1 + C2)
+  betamanual <- c(betamanual, coef(stage2))
+
+  expect_equal(fit40$estci[, 1], betamanual, ignore_attr = TRUE)
+  expect_equal(
+    sort(fit41$estci[, 1]),
+    sort(fit40$estci[, 1]),
+    tolerance = 1e-5,
+    ignore_attr = TRUE
+  )
+  expect_equal(
+    sort(fit42$estci[, 1]),
+    sort(fit40$estci[, 1]),
+    tolerance = 1e-5,
+    ignore_attr = TRUE
+  )
+})
+
+test_that("Print methods work with a user specified unnamed t0", {
+  skip_on_cran()
+  set.seed(9)
+  n <- 1000
+  Z <- rbinom(n, 1, 0.5)
+  X <- rbinom(n, 1, 0.7 * Z + 0.2 * (1 - Z))
+  m0 <- plogis(1 + 0.8 * X - 0.39 * Z)
+  Y <- rbinom(n, 1, plogis(0.5 * X + log(m0 / (1 - m0))))
+  dat2 <- data.frame(Z, X, Y)
+  stage1 <- lm(X ~ Z, data = dat2)
+  stage2 <- glm(Y ~ fitted.values(stage1), family = binomial, data = dat2)
+  t0 <- unname(c(coef(stage1), coef(stage2)))
+  fit <- tsps(Y ~ X | Z, data = dat2, link = "logit", t0 = t0)
+  expect_output(print(fit))
+  expect_output(print(summary(fit)))
+})
+
+test_that("Clear error message with more than one exposure", {
+  set.seed(123456)
+  n <- 1000
+  G1 <- rbinom(n, 2, 0.5)
+  G2 <- rbinom(n, 2, 0.3)
+  G3 <- rbinom(n, 2, 0.4)
+  U <- runif(n)
+  X1 <- 0.7 * G1 + G2 + U + rnorm(n)
+  X2 <- G2 - G3 + U + rnorm(n)
+  Y <- X1 + X2 + U + rnorm(n)
+  dat2 <- data.frame(G1, G2, G3, X1, X2, Y)
+  expect_error(
+    tsps(Y ~ X1 + X2 | G1 + G2 + G3, data = dat2),
+    "Only 1 exposure variable is allowed."
+  )
+})
+
+test_that("Clear error message for a variable named y", {
+  set.seed(9)
+  n <- 100
+  Z <- rbinom(n, 1, 0.5)
+  y <- rbinom(n, 1, 0.7 * Z + 0.2 * (1 - Z))
+  Y2 <- rbinom(n, 1, plogis(0.5 * y))
+  dat2 <- data.frame(Z, y, Y2)
+  expect_error(
+    tsps(Y2 ~ y | Z, data = dat2),
+    "reserved for internal use"
+  )
+})

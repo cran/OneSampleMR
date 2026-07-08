@@ -785,10 +785,24 @@ test_that("Methods fail for non-integer Y", {
   Y <- rbinom(n, 1, plogis(psi0 * X + log(m0 / (1 - m0))))
   dat <- data.frame(Z, X, Y)
   dat$Y[1] <- 1.5
-  expect_error(msmm(Y ~ X | Z, data = dat, estmethod = "gmm"))
-  expect_error(msmm(Y ~ X | Z, data = dat, estmethod = "gmmalt"))
-  expect_error(msmm(Y ~ X | Z, data = dat, estmethod = "tsls"))
-  expect_error(msmm(Y ~ X | Z, data = dat, estmethod = "tslsalt"))
+  # check for the intended error message, not e.g. the "invalid argument
+  # type" error previously raised by ! applied to the output of all.equal()
+  expect_error(
+    msmm(Y ~ X | Z, data = dat, estmethod = "gmm"),
+    "must be integers"
+  )
+  expect_error(
+    msmm(Y ~ X | Z, data = dat, estmethod = "gmmalt"),
+    "must be integers"
+  )
+  expect_error(
+    msmm(Y ~ X | Z, data = dat, estmethod = "tsls"),
+    "must be integers"
+  )
+  expect_error(
+    msmm(Y ~ X | Z, data = dat, estmethod = "tslsalt"),
+    "must be integers"
+  )
 })
 
 # Multiple exposure example ----
@@ -878,4 +892,73 @@ test_that("Adjusting for covariate", {
   expect_equal(log(fit25$crrci[1, 1]), .173, tolerance = .01)
   fit26 <- msmm(Y ~ E1 + E2 + C | G1 + G2 + G3 + C, data = dat)
   expect_equal(log(fit26$crrci[1, 1]), .184, tolerance = .01)
+})
+
+test_that("Clear error message for negative outcome values", {
+  set.seed(9)
+  n <- 1000
+  Z <- rbinom(n, 1, 0.5)
+  X <- rbinom(n, 1, 0.7 * Z + 0.2 * (1 - Z))
+  m0 <- plogis(1 + 0.8 * X - 0.39 * Z)
+  Y <- rbinom(n, 1, plogis(0.5 * X + log(m0 / (1 - m0))))
+  dat <- data.frame(Z, X, Y)
+  dat$Y[1] <- -1
+  expect_error(
+    msmm(Y ~ X | Z, data = dat),
+    "greater than or equal to 0"
+  )
+})
+
+test_that("gmmalt method returns a complete msmm object", {
+  skip_on_cran()
+  set.seed(9)
+  n <- 1000
+  Z <- rbinom(n, 1, 0.5)
+  X <- rbinom(n, 1, 0.7 * Z + 0.2 * (1 - Z))
+  m0 <- plogis(1 + 0.8 * X - 0.39 * Z)
+  Y <- rbinom(n, 1, plogis(0.5 * X + log(m0 / (1 - m0))))
+  dat <- data.frame(Z, X, Y)
+  fit <- msmm(Y ~ X | Z, data = dat, estmethod = "gmmalt")
+  expect_s3_class(fit, "msmm")
+  expect_named(fit, c("fit", "crrci", "ey0ci", "estmethod"))
+  expect_equal(fit$estmethod, "gmmalt")
+})
+
+test_that("tsls CRR confidence limits use the 0.975 normal quantile", {
+  skip_on_cran()
+  set.seed(9)
+  n <- 1000
+  Z <- rbinom(n, 1, 0.5)
+  X <- rbinom(n, 1, 0.7 * Z + 0.2 * (1 - Z))
+  m0 <- plogis(1 + 0.8 * X - 0.39 * Z)
+  Y <- rbinom(n, 1, plogis(0.5 * X + log(m0 / (1 - m0))))
+  dat <- data.frame(Z, X, Y)
+  fit <- msmm(Y ~ X | Z, data = dat, estmethod = "tsls")
+  beta <- coef(fit$fit)
+  logcrrse <- msm::deltamethod(~ log(-1 / x2), beta, vcov(fit$fit))
+  expect_equal(
+    fit$crrci[2:3],
+    exp(log(-1 / beta[2]) + c(-1, 1) * qnorm(0.975) * logcrrse),
+    ignore_attr = TRUE
+  )
+})
+
+test_that("Estimates are unaffected by an exposure named y", {
+  skip_on_cran()
+  set.seed(123456)
+  n <- 1000
+  G1 <- rbinom(n, 2, 0.5)
+  G2 <- rbinom(n, 2, 0.3)
+  G3 <- rbinom(n, 2, 0.4)
+  U <- runif(n)
+  X1 <- rbinom(n, 1, plogis(0.7 * G1 + U))
+  X2 <- rbinom(n, 1, plogis(G2 - G3 + U))
+  Y <- rbinom(n, 1, plogis(-2 + 0.5 * X1 + 0.3 * X2 + U))
+  dat <- data.frame(G1, G2, G3, X1, X2, Y)
+  fit <- msmm(Y ~ X1 + X2 | G1 + G2 + G3, data = dat)
+  daty <- dat
+  names(daty)[names(daty) == "X1"] <- "y"
+  fity <- msmm(Y ~ y + X2 | G1 + G2 + G3, data = daty)
+  expect_equal(unname(fit$crrci), unname(fity$crrci))
+  expect_equal(unname(fit$ey0ci), unname(fity$ey0ci))
 })

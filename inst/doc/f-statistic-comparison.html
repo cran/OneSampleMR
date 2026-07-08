@@ -475,33 +475,34 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>mod4 <span class="ot">&lt;-</span> <span class="fu">feols</span>(lwage <span class="sc">~</span> <span class="dv">1</span> <span class="sc">|</span> educ <span class="sc">+</span> exper <span class="sc">~</span> age <span class="sc">+</span> kidslt6 <span class="sc">+</span> kidsge6, <span class="at">data =</span> dat)</span>
 <span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; </span><span class="al">NOTE</span><span class="co">: 325 observations removed because of NA values (LHS: 325).</span></span>
 <span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="fu">summary</span>(mod4)</span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; TSLS estimation - Dep. Var.: lwage</span></span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt;                   Endo.    : educ, exper</span></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt;                   Instr.   : age, kidslt6, kidsge6</span></span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; Second stage: Dep. Var.: lwage</span></span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; Observations: 428</span></span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt; Standard-errors: IID </span></span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt;              Estimate Std. Error   t value Pr(&gt;|t|)    </span></span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt; (Intercept) -0.360182   1.033416 -0.348536 0.727611    </span></span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">#&gt; fit_educ     0.105836   0.080982  1.306912 0.191949    </span></span>
-<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co">#&gt; fit_exper    0.016153   0.007595  2.126850 0.034008 *  </span></span>
-<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co">#&gt; ---</span></span>
-<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co">#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#&gt; RMSE: 0.666683   Adj. R2: 0.007512</span></span>
-<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="co">#&gt; F-test (1st stage), educ : stat =  4.46617, p = 0.00421 , on 3 and 424 DoF.</span></span>
-<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="co">#&gt; F-test (1st stage), exper: stat = 55.04436, p &lt; 2.2e-16 , on 3 and 424 DoF.</span></span>
-<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co">#&gt;                Wu-Hausman: stat =  0.00392, p = 0.996088, on 2 and 423 DoF.</span></span>
-<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="co">#&gt;                    Sargan: stat =  1.16824, p = 0.279764, on 1 DoF.</span></span>
-<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="fu">fsw</span>(mod4)</span>
-<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a><span class="co">#&gt; Model sample size:  428 </span></span>
-<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a><span class="co">#&gt; Sanderson-Windmeijer conditional F-statistics for first stage model:</span></span>
-<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a><span class="co">#&gt;        F value d.f. Residual d.f.   Pr(&gt;F)    </span></span>
-<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a><span class="co">#&gt; educ   6.69425    2           424 0.001373 ** </span></span>
-<span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a><span class="co">#&gt; exper 81.81237    2           424  &lt; 2e-16 ***</span></span>
-<span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a><span class="co">#&gt; ---</span></span>
-<span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a><span class="co">#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span></code></pre></div>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; TSLS estimation: Second stage</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; |- D.V.   : lwage</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; |- Endo.  : educ, exper</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; |- Instr. : age, kidslt6, kidsge6</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; Dep. Var.: lwage</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt; Observations: 428</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt; Standard-errors: IID </span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt;              Estimate Std. Error   t value Pr(&gt;|t|)    </span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">#&gt; (Intercept) -0.360182   1.033416 -0.348536 0.727611    </span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co">#&gt; fit_educ     0.105836   0.080982  1.306912 0.191949    </span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co">#&gt; fit_exper    0.016153   0.007595  2.126850 0.034008 *  </span></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co">#&gt; ---</span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="co">#&gt; RMSE: 0.666683   Adj. R2: 0.007512</span></span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="co">#&gt; F-test (1st stage), educ : stat =  4.46617, p = 0.00421 , on 3 and 424 DoF.</span></span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co">#&gt; F-test (1st stage), exper: stat = 55.04436, p &lt; 2.2e-16 , on 3 and 424 DoF.</span></span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="co">#&gt;                Wu-Hausman: stat =  0.00392, p = 0.996088, on 2 and 423 DoF.</span></span>
+<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="co">#&gt;                    Sargan: stat =  1.16824, p = 0.279764, on 1 DoF.</span></span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="fu">fsw</span>(mod4)</span>
+<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a><span class="co">#&gt; Model sample size:  428 </span></span>
+<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a><span class="co">#&gt; Sanderson-Windmeijer conditional F-statistics for first stage model:</span></span>
+<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a><span class="co">#&gt;        F value d.f. Residual d.f.   Pr(&gt;F)    </span></span>
+<span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a><span class="co">#&gt; educ   6.69425    2           424 0.001373 ** </span></span>
+<span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a><span class="co">#&gt; exper 81.81237    2           424  &lt; 2e-16 ***</span></span>
+<span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a><span class="co">#&gt; ---</span></span>
+<span id="cb5-32"><a href="#cb5-32" tabindex="-1"></a><span class="co">#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span></code></pre></div>
 </div>
 <div id="comparison-with-f-statistic-from-lfe-package" class="section level2">
 <h2>Comparison with F-statistic from lfe package</h2>
